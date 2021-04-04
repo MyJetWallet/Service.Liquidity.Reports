@@ -111,7 +111,7 @@ namespace Service.Liquidity.Reports.Jobs
                         .Where(e => e != null)
                         .ToList();
 
-                return _trades.ToList();
+                return trades.ToList();
             }
         }
     }
