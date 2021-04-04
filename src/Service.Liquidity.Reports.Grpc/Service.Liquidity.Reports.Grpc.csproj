@@ -13,8 +13,4 @@
     <ProjectReference Include="..\Service.Liquidity.Reports.Domain.Models\Service.Liquidity.Reports.Domain.Models.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>

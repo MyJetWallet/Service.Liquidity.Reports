@@ -17,6 +17,7 @@ namespace Service.Liquidity.Reports.Jobs
 
         private readonly List<PositionPortfolio> _positions = new List<PositionPortfolio>();
         private List<PortfolioTrade> _trades = new List<PortfolioTrade>();
+        private List<PositionAssociation> _associations = new List<PositionAssociation>();
 
         public ReportAggregator(
             ILogger<ReportAggregator> logger,
@@ -49,9 +50,18 @@ namespace Service.Liquidity.Reports.Jobs
 
         private async ValueTask HandleAssociations(IReadOnlyList<PositionAssociation> associations)
         {
-            foreach (var association in associations)
+            lock (_gate)
             {
-                _logger.LogInformation("Position trade association: {jsoContext}", JsonConvert.SerializeObject(association));
+                foreach (var association in associations)
+                {
+                    _logger.LogInformation("Position trade association: {jsoContext}", JsonConvert.SerializeObject(association));
+                    _associations.Add(association);
+                }
+
+                while (_trades.Count > 50)
+                {
+                    _trades.RemoveAt(0);
+                }
             }
 
         }
@@ -87,6 +97,22 @@ namespace Service.Liquidity.Reports.Jobs
             lock (_gate)
             {
                 return _positions.ToList();
+            }
+        }
+
+        public List<PortfolioTrade> GetTradesByPositionId(string positionId)
+        {
+            lock (_gate)
+            {
+                var trades = 
+                    _associations
+                        .Where(e => e.PositionId == positionId)
+                        .Select(e => e.PositionId)
+                        .Select(e => _trades.FirstOrDefault(t => t.TradeId == e))
+                        .Where(e => e != null)
+                        .ToList();
+
+                return _trades.ToList();
             }
         }
     }
