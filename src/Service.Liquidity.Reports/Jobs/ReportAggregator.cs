@@ -107,8 +107,7 @@ namespace Service.Liquidity.Reports.Jobs
                 var trades = 
                     _associations
                         .Where(e => e.PositionId == positionId)
-                        .Select(e => e.PositionId)
-                        .Select(e => _trades.FirstOrDefault(t => t.TradeId == e))
+                        .Select(e => _trades.FirstOrDefault(t => t.TradeId == e.TradeId))
                         .Where(e => e != null)
                         .ToList();
 
