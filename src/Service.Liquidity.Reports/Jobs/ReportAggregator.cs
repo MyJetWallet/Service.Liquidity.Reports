@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DotNetCoreDecorators;
 using Grpc.Core.Logging;
 using Microsoft.Extensions.Logging;
+using MyJetWallet.Sdk.Service;
 using Newtonsoft.Json;
 using Service.Liquidity.Engine.Domain.Models.Portfolio;
 
@@ -33,6 +34,8 @@ namespace Service.Liquidity.Reports.Jobs
 
         private async ValueTask HandleClosePosition(IReadOnlyList<PositionPortfolio> positions)
         {
+            using var _ = MyTelemetry.StartActivity("Handle events ClosePosition")?.AddTag("event-count", positions.Count);
+
             lock (_gate)
             {
                 foreach (var position in positions)
@@ -50,6 +53,8 @@ namespace Service.Liquidity.Reports.Jobs
 
         private async ValueTask HandleAssociations(IReadOnlyList<PositionAssociation> associations)
         {
+            using var _ = MyTelemetry.StartActivity("Handle events Association")?.AddTag("event-count", associations.Count);
+
             lock (_gate)
             {
                 foreach (var association in associations)
@@ -68,6 +73,8 @@ namespace Service.Liquidity.Reports.Jobs
 
         private async ValueTask HandleTrades(IReadOnlyList<PortfolioTrade> trades)
         {
+            using var _ = MyTelemetry.StartActivity("Handle events Trade")?.AddTag("event-count", trades.Count);
+
             lock (_gate)
             {
                 foreach (var trade in trades)

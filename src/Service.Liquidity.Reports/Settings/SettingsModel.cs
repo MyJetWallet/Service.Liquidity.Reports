@@ -10,5 +10,8 @@ namespace Service.Liquidity.Reports.Settings
 
         [YamlProperty("LiquidityReports.SpotServiceBusHostPort")]
         public string SpotServiceBusHostPort { get; set; }
+
+        [YamlProperty("LiquidityReports.ZipkinUrl")]
+        public string ZipkinUrl { get; set; }
     }
 }
