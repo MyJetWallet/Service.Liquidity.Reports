@@ -24,21 +24,21 @@ namespace Service.Liquidity.Reports.Jobs
             ILogger<ReportAggregator> logger,
             ISubscriber<IReadOnlyList<PortfolioTrade>> tradeSubscriber,
             ISubscriber<IReadOnlyList<PositionAssociation>> associationPositionSubscriber,
-            ISubscriber<IReadOnlyList<PositionPortfolio>> closePositionSubscriber)
+            ISubscriber<IReadOnlyList<PositionPortfolio>> positionUpdateSubscriber)
         {
             _logger = logger;
             tradeSubscriber.Subscribe(HandleTrades);
             associationPositionSubscriber.Subscribe(HandleAssociations);
-            closePositionSubscriber.Subscribe(HandleClosePosition);
+            positionUpdateSubscriber.Subscribe(HandlePositionUpdate);
         }
 
-        private async ValueTask HandleClosePosition(IReadOnlyList<PositionPortfolio> positions)
+        private async ValueTask HandlePositionUpdate(IReadOnlyList<PositionPortfolio> positions)
         {
             using var _ = MyTelemetry.StartActivity("Handle events ClosePosition")?.AddTag("event-count", positions.Count);
 
             lock (_gate)
             {
-                foreach (var position in positions)
+                foreach (var position in positions.Where(e => !e.IsOpen))
                 {
                     _logger.LogInformation("Close position: {jsoContext}", JsonConvert.SerializeObject(position));
                     _positions.Insert(0, position);
