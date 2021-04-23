@@ -26,11 +26,16 @@ namespace Service.Liquidity.Reports.Services
         {
             await using var ctx = _contextFactory.Create();
 
+            
+
             var entities =await ctx.Positions
                 .Where(e => e.IsOpen == false && e.CloseTime < request.LastSeenDateTime)
-                .Take(request.Take ?? 30)
                 .OrderByDescending(e => e.CloseTime)
+                .Take(request.Take ?? 30)
                 .ToListAsync();
+
+       
+            
 
             var data = entities.Select(e => e.AsPositionPortfolio()).ToList();
 
@@ -43,8 +48,8 @@ namespace Service.Liquidity.Reports.Services
 
             var entities = await ctx.PortfolioTrades
                 .Where(e => e.DateTime < request.LastSeenDateTime)
-                .Take(request.Take ?? 30)
                 .OrderByDescending(e => e.DateTime)
+                .Take(request.Take ?? 30)
                 .ToListAsync();
 
             var data = entities.Select(e => e.AsPortfolioTrade()).ToList();

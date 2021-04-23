@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Service;
 using MySettingsReader;
+using Service.Liquidity.Reports.Database;
 using Service.Liquidity.Reports.Settings;
 
 namespace Service.Liquidity.Reports
@@ -37,6 +38,8 @@ namespace Service.Liquidity.Reports
             Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
 
             using var loggerFactory = LogConfigurator.ConfigureElk("MyJetWallet", Settings.SeqServiceUrl, Settings.ElkLogs);
+
+            DatabaseContext.LoggerFactory = loggerFactory;
 
             var logger = loggerFactory.CreateLogger<Program>();
 
