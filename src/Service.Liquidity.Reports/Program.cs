@@ -39,7 +39,7 @@ namespace Service.Liquidity.Reports
 
             using var loggerFactory = LogConfigurator.ConfigureElk("MyJetWallet", Settings.SeqServiceUrl, Settings.ElkLogs);
 
-            DatabaseContext.LoggerFactory = loggerFactory;
+                //DatabaseContext.LoggerFactory = loggerFactory;
 
             var logger = loggerFactory.CreateLogger<Program>();
 
