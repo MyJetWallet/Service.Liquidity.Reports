@@ -32,7 +32,7 @@ namespace Service.Liquidity.Reports.Services
                 .OrderByDescending(e => e.CloseTime)
                 .ToListAsync();
 
-            var data = entities.Cast<PositionPortfolio>().ToList();
+            var data = entities.Select(e => e.AsPositionPortfolio()).ToList();
 
             return GrpcList<PositionPortfolio>.Create(data);
         }
@@ -47,7 +47,7 @@ namespace Service.Liquidity.Reports.Services
                 .OrderByDescending(e => e.DateTime)
                 .ToListAsync();
 
-            var data = entities.Cast<PortfolioTrade>().ToList();
+            var data = entities.Select(e => e.AsPortfolioTrade()).ToList();
 
             return GrpcList<PortfolioTrade>.Create(data);
         }
@@ -62,7 +62,7 @@ namespace Service.Liquidity.Reports.Services
                 .Select(e => e.Trade)
                 .ToListAsync();
 
-            var data = entities.Cast<PortfolioTrade>().ToList();
+            var data = entities.Select(e => e.AsPortfolioTrade()).ToList();
 
             return GrpcList<PortfolioTrade>.Create(data);
         }
