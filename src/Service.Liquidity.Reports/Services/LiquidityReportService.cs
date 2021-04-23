@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Service.Liquidity.Engine.Domain.Models.Portfolio;
 using Service.Liquidity.Engine.Grpc.Models;
+using Service.Liquidity.Reports.Database;
 using Service.Liquidity.Reports.Grpc;
 using Service.Liquidity.Reports.Grpc.Models;
 using Service.Liquidity.Reports.Jobs;
@@ -11,28 +14,57 @@ namespace Service.Liquidity.Reports.Services
     public class LiquidityReportService : ILiquidityReportService
     {
         private readonly ReportAggregator _aggregator;
+        private readonly DatabaseContextFactory _contextFactory;
 
-        public LiquidityReportService(ReportAggregator aggregator)
+        public LiquidityReportService(ReportAggregator aggregator, DatabaseContextFactory contextFactory)
         {
             _aggregator = aggregator;
+            _contextFactory = contextFactory;
         }
 
-        public Task<GrpcList<PositionPortfolio>> GetClosedPositions()
+        public async Task<GrpcList<PositionPortfolio>> GetClosedPositions(GetClosedPositionsRequest request)
         {
-            var data = _aggregator.GetClosePositions();
-            return Task.FromResult(GrpcList<PositionPortfolio>.Create(data));
+            await using var ctx = _contextFactory.Create();
+
+            var entities =await ctx.Positions
+                .Where(e => e.IsOpen == false && e.CloseTime < request.LastSeenDateTime)
+                .Take(request.Take ?? 30)
+                .OrderByDescending(e => e.CloseTime)
+                .ToListAsync();
+
+            var data = entities.Cast<PositionPortfolio>().ToList();
+
+            return GrpcList<PositionPortfolio>.Create(data);
         }
 
-        public Task<GrpcList<PortfolioTrade>> GetTrades()
+        public async Task<GrpcList<PortfolioTrade>> GetTrades(GetTradesRequest request)
         {
-            var data = _aggregator.GetTrades();
-            return Task.FromResult(GrpcList<PortfolioTrade>.Create(data));
+            await using var ctx = _contextFactory.Create();
+
+            var entities = await ctx.PortfolioTrades
+                .Where(e => e.DateTime < request.LastSeenDateTime)
+                .Take(request.Take ?? 30)
+                .OrderByDescending(e => e.DateTime)
+                .ToListAsync();
+
+            var data = entities.Cast<PortfolioTrade>().ToList();
+
+            return GrpcList<PortfolioTrade>.Create(data);
         }
 
-        public Task<GrpcList<PortfolioTrade>> GetPositionTrades(GetPositionTradesRequest request)
+        public async Task<GrpcList<PortfolioTrade>> GetPositionTrades(GetPositionTradesRequest request)
         {
-            var data = _aggregator.GetTradesByPositionId(request.PositionId);
-            return Task.FromResult(GrpcList<PortfolioTrade>.Create(data));
+            await using var ctx = _contextFactory.Create();
+
+            var entities = await ctx.PositionAssociations
+                .Include(e => e.Trade)
+                .Where(e => e.PositionId == request.PositionId)
+                .Select(e => e.Trade)
+                .ToListAsync();
+
+            var data = entities.Cast<PortfolioTrade>().ToList();
+
+            return GrpcList<PortfolioTrade>.Create(data);
         }
     }
 }

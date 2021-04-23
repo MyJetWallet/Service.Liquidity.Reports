@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotNetCoreDecorators;
@@ -7,26 +8,26 @@ using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Service;
 using Newtonsoft.Json;
 using Service.Liquidity.Engine.Domain.Models.Portfolio;
+using Service.Liquidity.Reports.Database;
 
 namespace Service.Liquidity.Reports.Jobs
 {
     public class ReportAggregator
     {
         private readonly ILogger<ReportAggregator> _logger;
+        private readonly DatabaseContextFactory _contextFactory;
 
         private readonly object _gate = new object();
-
-        private readonly List<PositionPortfolio> _positions = new List<PositionPortfolio>();
-        private List<PortfolioTrade> _trades = new List<PortfolioTrade>();
-        private List<PositionAssociation> _associations = new List<PositionAssociation>();
 
         public ReportAggregator(
             ILogger<ReportAggregator> logger,
             ISubscriber<IReadOnlyList<PortfolioTrade>> tradeSubscriber,
             ISubscriber<IReadOnlyList<PositionAssociation>> associationPositionSubscriber,
-            ISubscriber<IReadOnlyList<PositionPortfolio>> positionUpdateSubscriber)
+            ISubscriber<IReadOnlyList<PositionPortfolio>> positionUpdateSubscriber,
+            DatabaseContextFactory contextFactory)
         {
             _logger = logger;
+            _contextFactory = contextFactory;
             tradeSubscriber.Subscribe(HandleTrades);
             associationPositionSubscriber.Subscribe(HandleAssociations);
             positionUpdateSubscriber.Subscribe(HandlePositionUpdate);
@@ -36,90 +37,105 @@ namespace Service.Liquidity.Reports.Jobs
         {
             using var _ = MyTelemetry.StartActivity("Handle events ClosePosition")?.AddTag("event-count", positions.Count);
 
-            lock (_gate)
+            var dict = new Dictionary<string, PositionPortfolio>();
+            foreach (var position in positions)
             {
-                foreach (var position in positions.Where(e => !e.IsOpen))
-                {
-                    _logger.LogInformation("Close position: {jsoContext}", JsonConvert.SerializeObject(position));
-                    _positions.Insert(0, position);
-                }
-
-                while (_positions.Count > 50)
-                {
-                    _positions.RemoveAt(positions.Count-1);
-                }
+                dict[position.Id] = position;
             }
+
+            var entities = dict.Values
+                .Select(e => new PositionPortfolioEntity()
+                {
+                    WalletId = e.WalletId,
+                    Symbol = e.Symbol,
+                    QuotesAsset = e.QuotesAsset,
+                    Side = e.Side,
+                    BaseVolume = e.BaseVolume,
+                    QuoteVolume = e.QuoteVolume,
+                    IsOpen = e.IsOpen,
+                    BaseAsset = e.BaseAsset,
+                    CloseTime = e.CloseTime,
+                    Id = e.Id,
+                    OpenTime = e.OpenTime,
+                    PLUsd = e.PLUsd,
+                    QuoteAssetToUsdPrice = e.QuoteAssetToUsdPrice,
+                    ResultPercentage = e.ResultPercentage,
+                    TotalBaseVolume = e.TotalBaseVolume,
+                    TotalQuoteVolume = e.TotalQuoteVolume
+                });
+
+            await using var ctx = _contextFactory.Create();
+
+            await ctx.UpsetAsync(entities);
+
+            _logger.LogInformation("Update {count} Position", positions.Count);
         }
 
         private async ValueTask HandleAssociations(IReadOnlyList<PositionAssociation> associations)
         {
             using var _ = MyTelemetry.StartActivity("Handle events Association")?.AddTag("event-count", associations.Count);
 
-            lock (_gate)
+            var iteration = 0;
+            while (true)
             {
-                foreach (var association in associations)
+                iteration++;
+                try
                 {
-                    _logger.LogInformation("Position trade association: {jsoContext}", JsonConvert.SerializeObject(association));
-                    _associations.Add(association);
-                }
+                    var entities = associations.Select(e => new PositionAssociationEntity()
+                    {
+                        Source = e.Source,
+                        TradeId = e.TradeId,
+                        PositionId = e.PositionId,
+                        IsInternalTrade = e.IsInternalTrade
+                    });
 
-                while (_trades.Count > 50)
+                    await using var ctx = _contextFactory.Create();
+
+                    await ctx.UpsetAsync(entities);
+
+                    _logger.LogInformation("Register {count} Association. Iterations: {iteration}", associations.Count, iteration);
+
+                    return;
+                }
+                catch (Exception ex)
                 {
-                    _trades.RemoveAt(0);
+                    if (iteration < 10)
+                    {
+                        await Task.Delay(2000);
+                    }
+                    else
+                    {
+                        _logger.LogError(ex, "Cannot handle PositionAssociation");
+                        throw;
+                    }
                 }
             }
-
         }
 
         private async ValueTask HandleTrades(IReadOnlyList<PortfolioTrade> trades)
         {
             using var _ = MyTelemetry.StartActivity("Handle events Trade")?.AddTag("event-count", trades.Count);
 
-            lock (_gate)
+
+            var entities = trades.Select(e => new PortfolioTradeEntity()
             {
-                foreach (var trade in trades)
-                {
-                    _logger.LogInformation("Trade: {jsoContext}", JsonConvert.SerializeObject(trade));
-                    _trades.Insert(0, trade);
-                }
+                BaseVolume = e.BaseVolume,
+                DateTime = e.DateTime,
+                IsInternal = e.IsInternal,
+                Price = e.Price,
+                QuoteVolume = e.QuoteVolume,
+                ReferenceId = e.ReferenceId,
+                Side = e.Side,
+                Source = e.Source,
+                Symbol = e.Symbol,
+                TradeId = e.TradeId
+            });
 
-                while (_trades.Count > 50)
-                {
-                    _trades.RemoveAt(_trades.Count - 1);
-                }
-            }
+            await using var ctx = _contextFactory.Create();
 
-        }
+            await ctx.UpsetAsync(entities);
 
-        public List<PortfolioTrade> GetTrades()
-        {
-            lock (_gate)
-            {
-                return _trades.ToList();
-            }
-        }
-
-        public List<PositionPortfolio> GetClosePositions()
-        {
-            lock (_gate)
-            {
-                return _positions.ToList();
-            }
-        }
-
-        public List<PortfolioTrade> GetTradesByPositionId(string positionId)
-        {
-            lock (_gate)
-            {
-                var trades = 
-                    _associations
-                        .Where(e => e.PositionId == positionId)
-                        .Select(e => _trades.FirstOrDefault(t => t.TradeId == e.TradeId))
-                        .Where(e => e != null)
-                        .ToList();
-
-                return trades.ToList();
-            }
+            _logger.LogInformation("Register {count} trades", trades.Count);
         }
     }
 }

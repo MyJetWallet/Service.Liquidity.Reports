@@ -7,9 +7,11 @@ using Microsoft.Extensions.Hosting;
 using Autofac;
 using MyJetWallet.Sdk.GrpcMetrics;
 using MyJetWallet.Sdk.GrpcSchema;
+using MyJetWallet.Sdk.Postgres;
 using MyJetWallet.Sdk.Service;
 using Prometheus;
 using ProtoBuf.Grpc.Server;
+using Service.Liquidity.Reports.Database;
 using Service.Liquidity.Reports.Grpc;
 using Service.Liquidity.Reports.Modules;
 using Service.Liquidity.Reports.Services;
@@ -31,6 +33,8 @@ namespace Service.Liquidity.Reports
             services.AddHostedService<ApplicationLifetimeManager>();
 
             services.AddMyTelemetry(Program.Settings.ZipkinUrl);
+
+            services.AddDatabase(DatabaseContext.Schema, Program.Settings.PostgresConnectionString, o => new DatabaseContext(o));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

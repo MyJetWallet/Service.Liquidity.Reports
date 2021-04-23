@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Core;
 using Autofac.Core.Registration;
+using Service.Liquidity.Reports.Database;
 using Service.Liquidity.Reports.Jobs;
 
 namespace Service.Liquidity.Reports.Modules
@@ -14,6 +15,8 @@ namespace Service.Liquidity.Reports.Modules
                 .AsSelf()
                 .AutoActivate()
                 .SingleInstance();
+
+            builder.RegisterType<DatabaseContextFactory>().AsSelf().SingleInstance();
         }
     }
 }
