@@ -32,7 +32,7 @@ namespace Service.Liquidity.Reports
 
             services.AddHostedService<ApplicationLifetimeManager>();
 
-            services.AddMyTelemetry(Program.Settings.ZipkinUrl);
+            services.AddMyTelemetry("SP-", Program.Settings.ZipkinUrl);
 
             services.AddDatabase(DatabaseContext.Schema, Program.Settings.PostgresConnectionString, o => new DatabaseContext(o));
         }
