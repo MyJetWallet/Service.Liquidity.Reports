@@ -10,8 +10,8 @@ using Service.Liquidity.Reports.Database;
 namespace Service.Liquidity.Reports.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210423144504_Version_1")]
-    partial class Version_1
+    [Migration("20210715141531_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -19,14 +19,108 @@ namespace Service.Liquidity.Reports.Database.Migrations
             modelBuilder
                 .HasDefaultSchema("lp_reports")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.5")
+                .HasAnnotation("ProductVersion", "5.0.8")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+            modelBuilder.Entity("Service.Liquidity.Portfolio.Domain.Models.AssetPortfolioTrade", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("AssociateBrokerId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("AssociateSymbol")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("BaseAsset")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<double>("BaseVolume")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("BaseVolumeInUsd")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("QuoteAsset")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<double>("QuoteVolume")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("QuoteVolumeInUsd")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("Side")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("TradeId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("User")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WalletName")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseAsset");
+
+                    b.HasIndex("QuoteAsset");
+
+                    b.HasIndex("Source");
+
+                    b.HasIndex("TradeId")
+                        .IsUnique();
+
+                    b.ToTable("assetportfoliotrades");
+                });
 
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PortfolioTradeEntity", b =>
                 {
                     b.Property<string>("TradeId")
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
+
+                    b.Property<string>("AssociateBrokerId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AssociateClientId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AssociateSymbol")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AssociateWalletId")
+                        .HasColumnType("text");
 
                     b.Property<double>("BaseVolume")
                         .HasColumnType("double precision");

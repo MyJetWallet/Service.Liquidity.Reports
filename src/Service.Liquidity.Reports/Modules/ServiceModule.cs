@@ -15,6 +15,12 @@ namespace Service.Liquidity.Reports.Modules
                 .AsSelf()
                 .AutoActivate()
                 .SingleInstance();
+            
+            builder
+                .RegisterType<PortfolioTradeHandlerJob>()
+                .As<IStartable>()
+                .AutoActivate()
+                .SingleInstance();
 
             builder.RegisterType<DatabaseContextFactory>().AsSelf().SingleInstance();
         }
