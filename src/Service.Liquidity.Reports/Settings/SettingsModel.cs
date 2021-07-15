@@ -19,5 +19,8 @@ namespace Service.Liquidity.Reports.Settings
 
         [YamlProperty("LiquidityReports.ElkLogs")]
         public LogElkSettings ElkLogs { get; set; }
+
+        [YamlProperty("LiquidityReports.ServiceBusQuerySuffix")]
+        public string ServiceBusQuerySuffix { get; set; }
     }
 }

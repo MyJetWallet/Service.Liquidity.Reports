@@ -1,5 +1,3 @@
-using System;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using Service.Liquidity.Engine.Domain.Models.Portfolio;
@@ -19,21 +17,8 @@ namespace Service.Liquidity.Reports.Grpc
 
         [OperationContract]
         Task<GrpcList<PortfolioTrade>> GetPositionTrades(GetPositionTradesRequest request);
-    }
-
-    [DataContract]
-    public class GetClosedPositionsRequest
-    {
-        [DataMember(Order = 1)] public DateTime LastSeenDateTime { get; set; }
-
-        [DataMember(Order = 2)] public int? Take { get; set; }
-    }
-
-    [DataContract]
-    public class GetTradesRequest
-    {
-        [DataMember(Order = 1)] public DateTime LastSeenDateTime { get; set; }
-
-        [DataMember(Order = 2)] public int? Take { get; set; }
+        
+        [OperationContract]
+        Task<GetAssetPortfolioTradesResponse> GetAssetPortfolioTradesAsync(GetAssetPortfolioTradesRequest request);
     }
 }

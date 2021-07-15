@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -127,13 +128,6 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.BaseAsset);
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.QuoteAsset);
         }
-        
-        public static DatabaseContext Create(DbContextOptionsBuilder<DatabaseContext> options)
-        {
-            var activity = MyTelemetry.StartActivity($"Database context {Schema}")?.AddTag("db-schema", Schema);
-            var ctx = new DatabaseContext(options.Options) {_activity = activity};
-            return ctx;
-        }
 
         public async Task<int> UpsetAsync(IEnumerable<PortfolioTradeEntity> entities)
         {
@@ -165,6 +159,38 @@ namespace Service.Liquidity.Reports.Database
                 .UpsertRange(trades)
                 .On(e => e.TradeId)
                 .RunAsync();
+        }
+
+        public async Task<List<AssetPortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
+        {
+            if (lastId != 0)
+            {
+                if (string.IsNullOrWhiteSpace(assetFilter))
+                {
+                    return AssetPortfolioTrades
+                        .Where(trade => trade.Id < lastId)
+                        .OrderByDescending(trade => trade.Id)
+                        .Take(batchSize)
+                        .ToList();
+                }
+                return AssetPortfolioTrades
+                    .Where(trade => trade.Id < lastId && (trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter)))
+                    .OrderByDescending(trade => trade.Id)
+                    .Take(batchSize)
+                    .ToList();
+            }
+            if (string.IsNullOrWhiteSpace(assetFilter))
+            {
+                return AssetPortfolioTrades
+                    .OrderByDescending(trade => trade.Id)
+                    .Take(batchSize)
+                    .ToList();
+            }
+            return AssetPortfolioTrades
+                .Where(trade => trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter))
+                .OrderByDescending(trade => trade.Id)
+                .Take(batchSize)
+                .ToList();
         }
     }
 }

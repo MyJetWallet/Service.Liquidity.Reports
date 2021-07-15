@@ -12,20 +12,20 @@ namespace Service.Liquidity.Reports.Jobs
     public class PortfolioTradeHandlerJob : IStartable
     {
         private ILogger<PortfolioTradeHandlerJob> _logger;
-        private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
+        private readonly DatabaseContextFactory _contextFactory;
         
         public PortfolioTradeHandlerJob(ISubscriber<IReadOnlyList<AssetPortfolioTrade>> subscriber,
             ILogger<PortfolioTradeHandlerJob> logger,
-            DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder)
+            DatabaseContextFactory contextFactory)
         {
             _logger = logger;
-            _dbContextOptionsBuilder = dbContextOptionsBuilder;
+            _contextFactory = contextFactory;
             subscriber.Subscribe(HandleTrades);
         }
 
         private async ValueTask HandleTrades(IReadOnlyList<AssetPortfolioTrade> trades)
         {
-            await using var ctx = DatabaseContext.Create(_dbContextOptionsBuilder);
+            await using var ctx = _contextFactory.Create();
             await ctx.SaveTradesAsync(trades);
         }
 
