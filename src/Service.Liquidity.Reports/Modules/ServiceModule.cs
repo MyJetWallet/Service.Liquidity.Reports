@@ -17,7 +17,13 @@ namespace Service.Liquidity.Reports.Modules
                 .SingleInstance();
             
             builder
-                .RegisterType<PortfolioTradeHandlerJob>()
+                .RegisterType<PortfolioTradeJob>()
+                .As<IStartable>()
+                .AutoActivate()
+                .SingleInstance();
+            
+            builder
+                .RegisterType<PortfolioChangeBalanceHistoryJob>()
                 .As<IStartable>()
                 .AutoActivate()
                 .SingleInstance();

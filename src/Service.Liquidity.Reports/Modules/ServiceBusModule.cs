@@ -24,6 +24,11 @@ namespace Service.Liquidity.Reports.Modules
                 $"LiquidityReports-{Program.Settings.ServiceBusQuerySuffix}",
                 TopicQueueType.PermanentWithSingleConnection, 
                 true);
+            
+            builder.RegisterPortfolioChangeBalanceHistoryServiceBusClient(serviceBusClient, 
+                $"LiquidityReports-{Program.Settings.ServiceBusQuerySuffix}",
+                TopicQueueType.PermanentWithSingleConnection, 
+                true);
         }
     }
 }

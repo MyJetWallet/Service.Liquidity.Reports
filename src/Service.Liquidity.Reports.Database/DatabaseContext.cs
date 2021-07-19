@@ -164,10 +164,14 @@ namespace Service.Liquidity.Reports.Database
             return result;
         }
         
-        public async Task SaveChangeBalanceHistoryAsync(ChangeBalanceHistory history)
+        public async Task SaveChangeBalanceHistoryAsync(IEnumerable<ChangeBalanceHistory> histories)
         {
-            ChangeBalanceHistories.Add(history);
+            await ChangeBalanceHistories.AddRangeAsync(histories);
             await SaveChangesAsync();
+        }
+        public async Task<List<ChangeBalanceHistory>> GetChangeBalanceHistory()
+        {
+            return ChangeBalanceHistories.ToList();
         }
         
         public override void Dispose()
@@ -214,11 +218,6 @@ namespace Service.Liquidity.Reports.Database
                 .OrderByDescending(trade => trade.Id)
                 .Take(batchSize)
                 .ToList();
-        }
-
-        public async Task<List<ChangeBalanceHistory>> GetChangeBalanceHistory()
-        {
-            return ChangeBalanceHistories.ToList();
         }
     }
 }
