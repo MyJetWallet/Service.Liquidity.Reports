@@ -4,6 +4,7 @@ using Service.Liquidity.Portfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Grpc.Models
 {
+    [DataContract]
     public class GetAssetPortfolioTradesResponse
     {
         [DataMember(Order = 1)] public bool Success { get; set; }
