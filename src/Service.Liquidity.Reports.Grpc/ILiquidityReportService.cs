@@ -20,5 +20,6 @@ namespace Service.Liquidity.Reports.Grpc
         
         [OperationContract]
         Task<GetAssetPortfolioTradesResponse> GetAssetPortfolioTradesAsync(GetAssetPortfolioTradesRequest request);
+        Task<GetChangeBalanceHistoryResponse> GetChangeBalanceHistoryAsync();
     }
 }

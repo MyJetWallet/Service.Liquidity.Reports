@@ -42,6 +42,26 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "changebalancehistory",
+                schema: "lp_reports",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BrokerId = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    WalletName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    Asset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    VolumeDifference = table.Column<double>(type: "double precision", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Comment = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    User = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_changebalancehistory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "portfolio_position",
                 schema: "lp_reports",
                 columns: table => new
@@ -194,6 +214,10 @@ namespace Service.Liquidity.Reports.Database.Migrations
         {
             migrationBuilder.DropTable(
                 name: "assetportfoliotrades",
+                schema: "lp_reports");
+
+            migrationBuilder.DropTable(
+                name: "changebalancehistory",
                 schema: "lp_reports");
 
             migrationBuilder.DropTable(

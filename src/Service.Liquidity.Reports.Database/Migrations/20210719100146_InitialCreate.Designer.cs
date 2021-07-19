@@ -10,7 +10,7 @@ using Service.Liquidity.Reports.Database;
 namespace Service.Liquidity.Reports.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210715141531_InitialCreate")]
+    [Migration("20210719100146_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -102,6 +102,44 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("assetportfoliotrades");
+                });
+
+            modelBuilder.Entity("Service.Liquidity.Portfolio.Domain.Models.ChangeBalanceHistory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Asset")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("BrokerId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("User")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<double>("VolumeDifference")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("WalletName")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("changebalancehistory");
                 });
 
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PortfolioTradeEntity", b =>

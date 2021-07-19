@@ -102,5 +102,23 @@ namespace Service.Liquidity.Reports.Services
 
             return response;
         }
+        
+        public async Task<GetChangeBalanceHistoryResponse> GetChangeBalanceHistoryAsync()
+        {
+            var response = new GetChangeBalanceHistoryResponse();
+            try
+            {
+                await using var ctx = _contextFactory.Create();
+                response.Histories = await ctx.GetChangeBalanceHistory();
+                response.Success = true;
+            }
+            catch (Exception exception)
+            {
+                response.Success = false;
+                response.ErrorText = exception.Message;
+            }
+
+            return response;
+        }
     }
 }

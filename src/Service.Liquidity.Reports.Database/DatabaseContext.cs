@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Domain.Orders;
-using MyJetWallet.Sdk.Service;
 using Service.Liquidity.Portfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Database
@@ -21,6 +20,9 @@ namespace Service.Liquidity.Reports.Database
         private const string PositionAssociationsTableName = "portfolio_position_assotiation";
         private const string PositionTableName = "portfolio_position";
         private const string AssetPortfolioTradeTableName = "assetportfoliotrades";
+        private const string ChangeBalanceHistoryTableName = "changebalancehistory";
+
+        public DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
 
         public DbSet<PortfolioTradeEntity> PortfolioTrades { get; set; }
         private DbSet<AssetPortfolioTrade> AssetPortfolioTrades { get; set; }
@@ -96,6 +98,7 @@ namespace Service.Liquidity.Reports.Database
 
 
             SetTradeEntity(modelBuilder);
+            SetChangeBalanceHistoryEntity(modelBuilder);
             
             base.OnModelCreating(modelBuilder);
         }
@@ -128,6 +131,20 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.BaseAsset);
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.QuoteAsset);
         }
+        
+        private void SetChangeBalanceHistoryEntity(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ChangeBalanceHistory>().ToTable(ChangeBalanceHistoryTableName);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<ChangeBalanceHistory>().HasKey(e => e.Id);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.BrokerId).HasMaxLength(64);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.WalletName).HasMaxLength(64);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.VolumeDifference);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.UpdateDate);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.Comment).HasMaxLength(256);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.User).HasMaxLength(64);
+        }
 
         public async Task<int> UpsetAsync(IEnumerable<PortfolioTradeEntity> entities)
         {
@@ -145,6 +162,12 @@ namespace Service.Liquidity.Reports.Database
         {
             var result = await Positions.UpsertRange(entities).On(e => e.Id).RunAsync();
             return result;
+        }
+        
+        public async Task SaveChangeBalanceHistoryAsync(ChangeBalanceHistory history)
+        {
+            ChangeBalanceHistories.Add(history);
+            await SaveChangesAsync();
         }
         
         public override void Dispose()
@@ -191,6 +214,11 @@ namespace Service.Liquidity.Reports.Database
                 .OrderByDescending(trade => trade.Id)
                 .Take(batchSize)
                 .ToList();
+        }
+
+        public async Task<List<ChangeBalanceHistory>> GetChangeBalanceHistory()
+        {
+            return ChangeBalanceHistories.ToList();
         }
     }
 }
