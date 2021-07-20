@@ -21,11 +21,13 @@ namespace Service.Liquidity.Reports.Database
         private const string PositionTableName = "portfolio_position";
         private const string AssetPortfolioTradeTableName = "assetportfoliotrades";
         private const string ChangeBalanceHistoryTableName = "changebalancehistory";
+        private const string PnlByAssetTableName = "assetportfoliotradepnl";
 
         public DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
 
         public DbSet<PortfolioTradeEntity> PortfolioTrades { get; set; }
         private DbSet<AssetPortfolioTrade> AssetPortfolioTrades { get; set; }
+        private DbSet<PnlByAsset> PnlByAssets { get; set; }
 
         public DbSet<PositionAssociationEntity> PositionAssociations { get; set; }
 
@@ -99,6 +101,7 @@ namespace Service.Liquidity.Reports.Database
 
             SetTradeEntity(modelBuilder);
             SetChangeBalanceHistoryEntity(modelBuilder);
+            SetPnlByAssetEntity(modelBuilder);
             
             base.OnModelCreating(modelBuilder);
         }
@@ -130,6 +133,21 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.Source);
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.BaseAsset);
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.QuoteAsset);
+        }
+        
+        private void SetPnlByAssetEntity(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PnlByAsset>().ToTable(PnlByAssetTableName);
+            modelBuilder.Entity<PnlByAsset>().HasKey(e => e.Id);
+            modelBuilder.Entity<PnlByAsset>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<PnlByAsset>().Property(e => e.Pnl);
+            
+            modelBuilder.Entity<PnlByAsset>().HasIndex(e => e.Asset).IsUnique();
+            
+            modelBuilder.Entity<PnlByAsset>()
+                .HasOne(p => p.Trade)
+                .WithMany(b => b.ReleasePnl);
+            
         }
         
         private void SetChangeBalanceHistoryEntity(ModelBuilder modelBuilder)

@@ -25,11 +25,13 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     BaseAsset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     QuoteAsset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     Side = table.Column<int>(type: "integer", nullable: false),
-                    Price = table.Column<double>(type: "double precision", nullable: false),
-                    BaseVolume = table.Column<double>(type: "double precision", nullable: false),
-                    QuoteVolume = table.Column<double>(type: "double precision", nullable: false),
-                    BaseVolumeInUsd = table.Column<double>(type: "double precision", nullable: false),
-                    QuoteVolumeInUsd = table.Column<double>(type: "double precision", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric", nullable: false),
+                    BaseVolume = table.Column<decimal>(type: "numeric", nullable: false),
+                    QuoteVolume = table.Column<decimal>(type: "numeric", nullable: false),
+                    BaseVolumeInUsd = table.Column<decimal>(type: "numeric", nullable: false),
+                    QuoteVolumeInUsd = table.Column<decimal>(type: "numeric", nullable: false),
+                    BaseAssetPriceInUsd = table.Column<decimal>(type: "numeric", nullable: false),
+                    QuoteAssetPriceInUsd = table.Column<decimal>(type: "numeric", nullable: false),
                     DateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     ErrorMessage = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Source = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
@@ -51,7 +53,7 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     BrokerId = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     WalletName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     Asset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    VolumeDifference = table.Column<double>(type: "double precision", nullable: false),
+                    VolumeDifference = table.Column<decimal>(type: "numeric", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Comment = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     User = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true)
@@ -114,6 +116,29 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "assetportfoliotradepnl",
+                schema: "lp_reports",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Asset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    Pnl = table.Column<decimal>(type: "numeric", nullable: false),
+                    TradeId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_assetportfoliotradepnl", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_assetportfoliotradepnl_assetportfoliotrades_TradeId",
+                        column: x => x.TradeId,
+                        principalSchema: "lp_reports",
+                        principalTable: "assetportfoliotrades",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "portfolio_position_assotiation",
                 schema: "lp_reports",
                 columns: table => new
@@ -141,6 +166,19 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         principalColumn: "TradeId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_assetportfoliotradepnl_Asset",
+                schema: "lp_reports",
+                table: "assetportfoliotradepnl",
+                column: "Asset",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_assetportfoliotradepnl_TradeId",
+                schema: "lp_reports",
+                table: "assetportfoliotradepnl",
+                column: "TradeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_assetportfoliotrades_BaseAsset",
@@ -213,7 +251,7 @@ namespace Service.Liquidity.Reports.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "assetportfoliotrades",
+                name: "assetportfoliotradepnl",
                 schema: "lp_reports");
 
             migrationBuilder.DropTable(
@@ -222,6 +260,10 @@ namespace Service.Liquidity.Reports.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "portfolio_position_assotiation",
+                schema: "lp_reports");
+
+            migrationBuilder.DropTable(
+                name: "assetportfoliotrades",
                 schema: "lp_reports");
 
             migrationBuilder.DropTable(

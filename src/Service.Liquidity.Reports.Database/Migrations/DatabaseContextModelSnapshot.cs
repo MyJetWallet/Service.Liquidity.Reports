@@ -39,11 +39,14 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<double>("BaseVolume")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("BaseAssetPriceInUsd")
+                        .HasColumnType("numeric");
 
-                    b.Property<double>("BaseVolumeInUsd")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("BaseVolume")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("BaseVolumeInUsd")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Comment")
                         .HasMaxLength(256)
@@ -56,18 +59,21 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("QuoteAsset")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<double>("QuoteVolume")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("QuoteAssetPriceInUsd")
+                        .HasColumnType("numeric");
 
-                    b.Property<double>("QuoteVolumeInUsd")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("QuoteVolume")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("QuoteVolumeInUsd")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("Side")
                         .HasColumnType("integer");
@@ -128,8 +134,8 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<double>("VolumeDifference")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("VolumeDifference")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("WalletName")
                         .HasMaxLength(64)
@@ -138,6 +144,33 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("changebalancehistory");
+                });
+
+            modelBuilder.Entity("Service.Liquidity.Portfolio.Domain.Models.PnlByAsset", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Asset")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("Pnl")
+                        .HasColumnType("numeric");
+
+                    b.Property<long?>("TradeId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Asset")
+                        .IsUnique();
+
+                    b.HasIndex("TradeId");
+
+                    b.ToTable("assetportfoliotradepnl");
                 });
 
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PortfolioTradeEntity", b =>
@@ -291,6 +324,15 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.ToTable("portfolio_position");
                 });
 
+            modelBuilder.Entity("Service.Liquidity.Portfolio.Domain.Models.PnlByAsset", b =>
+                {
+                    b.HasOne("Service.Liquidity.Portfolio.Domain.Models.AssetPortfolioTrade", "Trade")
+                        .WithMany("ReleasePnl")
+                        .HasForeignKey("TradeId");
+
+                    b.Navigation("Trade");
+                });
+
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PositionAssociationEntity", b =>
                 {
                     b.HasOne("Service.Liquidity.Reports.Database.PositionPortfolioEntity", "Position")
@@ -308,6 +350,11 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.Navigation("Position");
 
                     b.Navigation("Trade");
+                });
+
+            modelBuilder.Entity("Service.Liquidity.Portfolio.Domain.Models.AssetPortfolioTrade", b =>
+                {
+                    b.Navigation("ReleasePnl");
                 });
 
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PortfolioTradeEntity", b =>
