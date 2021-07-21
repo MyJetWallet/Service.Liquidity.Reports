@@ -159,6 +159,7 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.WalletName).HasMaxLength(64);
             modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.Asset).HasMaxLength(64);
             modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.VolumeDifference);
+            modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.BalanceBeforeUpdate);
             modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.UpdateDate);
             modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.Comment).HasMaxLength(256);
             modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.User).HasMaxLength(64);

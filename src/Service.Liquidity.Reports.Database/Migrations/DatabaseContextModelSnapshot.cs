@@ -119,6 +119,9 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<decimal>("BalanceBeforeUpdate")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("BrokerId")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");

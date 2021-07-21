@@ -10,7 +10,7 @@ using Service.Liquidity.Reports.Database;
 namespace Service.Liquidity.Reports.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210720164342_InitialCreate")]
+    [Migration("20210721081428_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -120,6 +120,9 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.Property<string>("Asset")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("BalanceBeforeUpdate")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("BrokerId")
                         .HasMaxLength(64)

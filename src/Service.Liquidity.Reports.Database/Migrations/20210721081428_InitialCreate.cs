@@ -56,7 +56,8 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     VolumeDifference = table.Column<decimal>(type: "numeric", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Comment = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    User = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true)
+                    User = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    BalanceBeforeUpdate = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
