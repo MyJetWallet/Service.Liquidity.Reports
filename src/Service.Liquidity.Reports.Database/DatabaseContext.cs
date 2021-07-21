@@ -205,6 +205,11 @@ namespace Service.Liquidity.Reports.Database
                 .UpsertRange(trades)
                 .On(e => e.TradeId)
                 .RunAsync();
+            
+            await PnlByAssets
+                .UpsertRange(trades.SelectMany(elem => elem.ReleasePnl))
+                .On(e => e.Id)
+                .RunAsync();
         }
 
         public async Task<List<AssetPortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
