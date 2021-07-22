@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.38.0" />
-    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
@@ -20,7 +20,7 @@
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="1.5.5" />
     <PackageReference Include="MyJetWallet.Service.BalanceHistory.Client" Version="2.0.2" />
     <PackageReference Include="MyJetWallet.Service.Liquidity.Engine.Client" Version="1.4.2" />
-    <PackageReference Include="MyJetWallet.Service.Liquidity.Portfolio.Client" Version="1.5.3" />
+    <PackageReference Include="MyJetWallet.Service.Liquidity.Portfolio.Client" Version="1.5.4" />
     <PackageReference Include="MyJetWallet.Service.TradeHistory.Client" Version="1.1.1" />
     <PackageReference Include="MyServiceBus.TcpClient" Version="2.4.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
