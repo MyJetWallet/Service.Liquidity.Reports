@@ -123,9 +123,9 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TradeId = table.Column<long>(type: "bigint", nullable: false),
                     Asset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    Pnl = table.Column<decimal>(type: "numeric", nullable: false),
-                    TradeId = table.Column<long>(type: "bigint", nullable: true)
+                    Pnl = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -136,7 +136,7 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         principalSchema: "lp_reports",
                         principalTable: "assetportfoliotrades",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -172,8 +172,7 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 name: "IX_assetportfoliotradepnl_Asset",
                 schema: "lp_reports",
                 table: "assetportfoliotradepnl",
-                column: "Asset",
-                unique: true);
+                column: "Asset");
 
             migrationBuilder.CreateIndex(
                 name: "IX_assetportfoliotradepnl_TradeId",

@@ -138,15 +138,17 @@ namespace Service.Liquidity.Reports.Database
         private void SetPnlByAssetEntity(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PnlByAssetEntity>().ToTable(PnlByAssetTableName);
+            modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.Id).UseIdentityColumn();
             modelBuilder.Entity<PnlByAssetEntity>().HasKey(e => e.Id);
             modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.Asset).HasMaxLength(64);
             modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.Pnl);
-            
-            modelBuilder.Entity<PnlByAssetEntity>().HasIndex(e => e.Asset).IsUnique();
+
+            modelBuilder.Entity<PnlByAssetEntity>().HasIndex(e => e.Asset);
             
             modelBuilder.Entity<PnlByAssetEntity>()
                 .HasOne(p => p.TradeEntity)
-                .WithMany(b => b.ReleasePnl);
+                .WithMany(b => b.ReleasePnl)
+                .HasForeignKey(s => s.TradeId);
         }
         
         private void SetChangeBalanceHistoryEntity(ModelBuilder modelBuilder)
@@ -204,12 +206,19 @@ namespace Service.Liquidity.Reports.Database
                 .UpsertRange(trades)
                 .On(e => e.TradeId)
                 .RunAsync();
-            
-            await PnlByAssets
-                    .UpsertRange(trades.SelectMany(elem => elem.ReleasePnl ?? new List<PnlByAssetEntity>()))
-                    .On(e => e.Id)
-                    .RunAsync();
-            
+
+            var pnlCollection = new List<PnlByAssetEntity>();
+            foreach (var trade in trades)
+            {
+                if (trade.ReleasePnl != null)
+                {
+                    pnlCollection.AddRange(trade.ReleasePnl);
+                }
+            }
+
+            var x = pnlCollection;
+            await PnlByAssets.AddRangeAsync(pnlCollection);
+            await SaveChangesAsync();
         }
 
         public async Task<List<AssetPortfolioTradeEntity>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
