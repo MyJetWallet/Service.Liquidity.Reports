@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using DotNetCoreDecorators;
@@ -25,8 +26,9 @@ namespace Service.Liquidity.Reports.Jobs
         private async ValueTask HandleTrades(IReadOnlyList<AssetPortfolioTrade> trades)
         {
             _logger.LogInformation($"PortfolioTradeJob handle {trades.Count} trades.");
+
             await using var ctx = _contextFactory.Create();
-            await ctx.SaveTradesAsync(trades);
+            await ctx.SaveTradesAsync(trades.Select(AssetPortfolioTradeEntity.CreateFromParent).ToList());
         }
 
         public void Start()
