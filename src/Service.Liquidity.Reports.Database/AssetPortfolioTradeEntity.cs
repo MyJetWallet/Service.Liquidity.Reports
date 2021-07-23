@@ -33,9 +33,9 @@ namespace Service.Liquidity.Reports.Database
                 TradeId = parent.TradeId,
                 User = parent.User,
                 WalletName = parent.WalletName,
-                ReleasePnl = parent.ReleasePnl.Select(PnlByAssetEntity.CreateByParent).ToList()
+                ReleasePnl = parent.ReleasePnl?.Select(PnlByAssetEntity.CreateByParent).ToList()
             };
-            result.ReleasePnl.ForEach(e => e.TradeEntity = result);
+            result.ReleasePnl?.ForEach(e => e.TradeEntity = result);
             return result;
         }
         
