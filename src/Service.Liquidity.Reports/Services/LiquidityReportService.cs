@@ -104,7 +104,28 @@ namespace Service.Liquidity.Reports.Services
 
             return response;
         }
-        
+
+        public async Task<GetPnlByTradeResponse> GetPnlByTradeAsync(GetPnlByTradeRequest request)
+        {
+            var response = new GetPnlByTradeResponse();
+            try
+            {
+                await using var ctx = _contextFactory.Create();
+                var pnlEntities = await ctx.GetPnlEntityByTradeId(request.TradeId);
+
+                response.PnlCollection = pnlEntities.Select(e => PnlByAsset.Create(e.Asset, e.Pnl)).ToList();
+                response.Success = true;
+            } 
+            catch (Exception exception)
+            {
+                _logger.LogError(JsonConvert.SerializeObject(exception));
+                
+                response.Success = false;
+                response.ErrorMessage = exception.Message;
+            }
+            return response;
+        }
+
         public async Task<GetChangeBalanceHistoryResponse> GetChangeBalanceHistoryAsync()
         {
             var response = new GetChangeBalanceHistoryResponse();

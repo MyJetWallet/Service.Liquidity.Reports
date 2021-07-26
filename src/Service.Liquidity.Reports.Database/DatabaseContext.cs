@@ -225,6 +225,13 @@ namespace Service.Liquidity.Reports.Database
                 .RunAsync();
         }
 
+        public async Task<List<PnlByAssetEntity>> GetPnlEntityByTradeId(string tradeId)
+        {
+            return PnlByAssets
+                .Where(e => e.TradeId == tradeId)
+                .ToList();
+        }
+
         public async Task<List<AssetPortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
         {
             if (lastId != 0)
