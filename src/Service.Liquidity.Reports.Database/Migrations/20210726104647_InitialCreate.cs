@@ -12,6 +12,20 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 name: "lp_reports");
 
             migrationBuilder.CreateTable(
+                name: "assetportfoliotradepnl",
+                schema: "lp_reports",
+                columns: table => new
+                {
+                    Asset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    TradeId = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Pnl = table.Column<decimal>(type: "numeric", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_assetportfoliotradepnl", x => new { x.TradeId, x.Asset });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "assetportfoliotrades",
                 schema: "lp_reports",
                 columns: table => new
@@ -117,29 +131,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "assetportfoliotradepnl",
-                schema: "lp_reports",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TradeId = table.Column<long>(type: "bigint", nullable: false),
-                    Asset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    Pnl = table.Column<decimal>(type: "numeric", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_assetportfoliotradepnl", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_assetportfoliotradepnl_assetportfoliotrades_TradeId",
-                        column: x => x.TradeId,
-                        principalSchema: "lp_reports",
-                        principalTable: "assetportfoliotrades",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "portfolio_position_assotiation",
                 schema: "lp_reports",
                 columns: table => new
@@ -167,12 +158,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         principalColumn: "TradeId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_assetportfoliotradepnl_Asset",
-                schema: "lp_reports",
-                table: "assetportfoliotradepnl",
-                column: "Asset");
 
             migrationBuilder.CreateIndex(
                 name: "IX_assetportfoliotradepnl_TradeId",
@@ -255,15 +240,15 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 schema: "lp_reports");
 
             migrationBuilder.DropTable(
+                name: "assetportfoliotrades",
+                schema: "lp_reports");
+
+            migrationBuilder.DropTable(
                 name: "changebalancehistory",
                 schema: "lp_reports");
 
             migrationBuilder.DropTable(
                 name: "portfolio_position_assotiation",
-                schema: "lp_reports");
-
-            migrationBuilder.DropTable(
-                name: "assetportfoliotrades",
                 schema: "lp_reports");
 
             migrationBuilder.DropTable(

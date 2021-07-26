@@ -20,48 +20,7 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 .HasAnnotation("ProductVersion", "5.0.8")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            modelBuilder.Entity("Service.Liquidity.Portfolio.Domain.Models.ChangeBalanceHistory", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Asset")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<decimal>("BalanceBeforeUpdate")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("BrokerId")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<string>("Comment")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("User")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<decimal>("VolumeDifference")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("WalletName")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("changebalancehistory");
-                });
-
-            modelBuilder.Entity("Service.Liquidity.Reports.Database.AssetPortfolioTradeEntity", b =>
+            modelBuilder.Entity("Service.Liquidity.Portfolio.Domain.Models.AssetPortfolioTrade", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -149,7 +108,7 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.ToTable("assetportfoliotrades");
                 });
 
-            modelBuilder.Entity("Service.Liquidity.Reports.Database.PnlByAssetEntity", b =>
+            modelBuilder.Entity("Service.Liquidity.Portfolio.Domain.Models.ChangeBalanceHistory", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -160,15 +119,50 @@ namespace Service.Liquidity.Reports.Database.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<decimal>("Pnl")
+                    b.Property<decimal>("BalanceBeforeUpdate")
                         .HasColumnType("numeric");
 
-                    b.Property<long>("TradeId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("BrokerId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("User")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("VolumeDifference")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("WalletName")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Asset");
+                    b.ToTable("changebalancehistory");
+                });
+
+            modelBuilder.Entity("Service.Liquidity.Reports.Database.PnlByAssetEntity", b =>
+                {
+                    b.Property<string>("TradeId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Asset")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("Pnl")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("TradeId", "Asset");
 
                     b.HasIndex("TradeId");
 
@@ -326,17 +320,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.ToTable("portfolio_position");
                 });
 
-            modelBuilder.Entity("Service.Liquidity.Reports.Database.PnlByAssetEntity", b =>
-                {
-                    b.HasOne("Service.Liquidity.Reports.Database.AssetPortfolioTradeEntity", "TradeEntity")
-                        .WithMany("ReleasePnl")
-                        .HasForeignKey("TradeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TradeEntity");
-                });
-
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PositionAssociationEntity", b =>
                 {
                     b.HasOne("Service.Liquidity.Reports.Database.PositionPortfolioEntity", "Position")
@@ -354,11 +337,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.Navigation("Position");
 
                     b.Navigation("Trade");
-                });
-
-            modelBuilder.Entity("Service.Liquidity.Reports.Database.AssetPortfolioTradeEntity", b =>
-                {
-                    b.Navigation("ReleasePnl");
                 });
 
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PortfolioTradeEntity", b =>

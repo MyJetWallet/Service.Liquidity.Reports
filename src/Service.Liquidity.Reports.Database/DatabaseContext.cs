@@ -26,7 +26,7 @@ namespace Service.Liquidity.Reports.Database
         public DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
 
         public DbSet<PortfolioTradeEntity> PortfolioTrades { get; set; }
-        private DbSet<AssetPortfolioTradeEntity> AssetPortfolioTrades { get; set; }
+        private DbSet<AssetPortfolioTrade> AssetPortfolioTrades { get; set; }
         private DbSet<PnlByAssetEntity> PnlByAssets { get; set; }
 
         public DbSet<PositionAssociationEntity> PositionAssociations { get; set; }
@@ -108,47 +108,44 @@ namespace Service.Liquidity.Reports.Database
         
         private void SetTradeEntity(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().ToTable(AssetPortfolioTradeTableName);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.Id).UseIdentityColumn();
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().HasKey(e => e.Id);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.TradeId).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.AssociateBrokerId).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.WalletName).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.AssociateSymbol).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.BaseAsset).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.QuoteAsset).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.Side);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.Price);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.BaseVolume);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.QuoteVolume);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.BaseVolumeInUsd);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.QuoteVolumeInUsd);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.DateTime);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.ErrorMessage).HasMaxLength(256);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.Source).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.Comment).HasMaxLength(256);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().Property(e => e.User).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().ToTable(AssetPortfolioTradeTableName);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<AssetPortfolioTrade>().HasKey(e => e.Id);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.TradeId).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.AssociateBrokerId).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.WalletName).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.AssociateSymbol).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.BaseAsset).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.QuoteAsset).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Side);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Price);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.BaseVolume);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.QuoteVolume);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.BaseVolumeInUsd);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.QuoteVolumeInUsd);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.DateTime);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.ErrorMessage).HasMaxLength(256);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Source).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Comment).HasMaxLength(256);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.User).HasMaxLength(64);
+
+            modelBuilder.Entity<AssetPortfolioTrade>().Ignore(e => e.ReleasePnl);
             
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().HasIndex(e => e.TradeId).IsUnique();
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().HasIndex(e => e.Source);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().HasIndex(e => e.BaseAsset);
-            modelBuilder.Entity<AssetPortfolioTradeEntity>().HasIndex(e => e.QuoteAsset);
+            modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.TradeId).IsUnique();
+            modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.Source);
+            modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.BaseAsset);
+            modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.QuoteAsset);
         }
         
         private void SetPnlByAssetEntity(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PnlByAssetEntity>().ToTable(PnlByAssetTableName);
-            modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.Id).UseIdentityColumn();
-            modelBuilder.Entity<PnlByAssetEntity>().HasKey(e => e.Id);
+            modelBuilder.Entity<PnlByAssetEntity>().HasKey(e => new {e.TradeId, e.Asset});
             modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.Asset).HasMaxLength(64);
             modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.Pnl);
+            modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.TradeId).HasMaxLength(64);
 
-            modelBuilder.Entity<PnlByAssetEntity>().HasIndex(e => e.Asset);
-            
-            modelBuilder.Entity<PnlByAssetEntity>()
-                .HasOne(p => p.TradeEntity)
-                .WithMany(b => b.ReleasePnl)
-                .HasForeignKey(s => s.TradeId);
+            modelBuilder.Entity<PnlByAssetEntity>().HasIndex(e => e.TradeId);
         }
         
         private void SetChangeBalanceHistoryEntity(ModelBuilder modelBuilder)
@@ -200,7 +197,7 @@ namespace Service.Liquidity.Reports.Database
             base.Dispose();
         }
 
-        public async Task SaveTradesAsync(IReadOnlyList<AssetPortfolioTradeEntity> trades)
+        public async Task SaveTradesAsync(IReadOnlyList<AssetPortfolioTrade> trades)
         {
             await AssetPortfolioTrades
                 .UpsertRange(trades)
@@ -212,16 +209,23 @@ namespace Service.Liquidity.Reports.Database
             {
                 if (trade.ReleasePnl != null)
                 {
-                    pnlCollection.AddRange(trade.ReleasePnl);
+                    var pnlByTrade = new List<PnlByAssetEntity>();
+                    foreach (var pnl in trade.ReleasePnl)
+                    {
+                        var newPnlEntity = PnlByAssetEntity.CreateByParent(pnl, trade.TradeId);
+                        pnlByTrade.Add(newPnlEntity);
+                    }
+                    pnlCollection.AddRange(pnlByTrade);
                 }
             }
 
-            var x = pnlCollection;
-            await PnlByAssets.AddRangeAsync(pnlCollection);
-            await SaveChangesAsync();
+            await PnlByAssets
+                .UpsertRange(pnlCollection)
+                .On(e => new {e.TradeId, e.Asset})
+                .RunAsync();
         }
 
-        public async Task<List<AssetPortfolioTradeEntity>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
+        public async Task<List<AssetPortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
         {
             if (lastId != 0)
             {

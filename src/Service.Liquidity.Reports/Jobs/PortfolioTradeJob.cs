@@ -28,7 +28,7 @@ namespace Service.Liquidity.Reports.Jobs
             _logger.LogInformation($"PortfolioTradeJob handle {trades.Count} trades.");
 
             await using var ctx = _contextFactory.Create();
-            await ctx.SaveTradesAsync(trades.Select(AssetPortfolioTradeEntity.CreateFromParent).ToList());
+            await ctx.SaveTradesAsync(trades);
         }
 
         public void Start()

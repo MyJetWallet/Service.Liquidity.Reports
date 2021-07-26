@@ -91,7 +91,7 @@ namespace Service.Liquidity.Reports.Services
                 }
 
                 response.Success = true;
-                response.Trades = trades.Select(AssetPortfolioTradeEntity.CreateAsParent).ToList();
+                response.Trades = trades;
                 response.IdForNextQuery = idForNextQuery;
             } 
             catch (Exception exception)

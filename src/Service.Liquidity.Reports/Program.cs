@@ -15,7 +15,7 @@ namespace Service.Liquidity.Reports
 {
     public class Program
     {
-        public const string SettingsFileName = ".liquidity";
+        public const string SettingsFileName = ".myjetwallet";
 
         public static SettingsModel Settings { get; private set; }
 
