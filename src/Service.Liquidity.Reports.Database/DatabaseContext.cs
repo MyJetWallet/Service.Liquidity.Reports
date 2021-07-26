@@ -128,6 +128,7 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Source).HasMaxLength(64);
             modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Comment).HasMaxLength(256);
             modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.User).HasMaxLength(64);
+            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.TotalReleasePnl);
 
             modelBuilder.Entity<AssetPortfolioTrade>().Ignore(e => e.ReleasePnl);
             

@@ -10,7 +10,7 @@ using Service.Liquidity.Reports.Database;
 namespace Service.Liquidity.Reports.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210726104647_InitialCreate")]
+    [Migration("20210726130623_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -83,6 +83,9 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.Property<string>("Source")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("TotalReleasePnl")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("TradeId")
                         .HasMaxLength(64)
