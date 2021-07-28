@@ -152,26 +152,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.ToTable("changebalancehistory");
                 });
 
-            modelBuilder.Entity("Service.Liquidity.Reports.Database.PnlByAssetEntity", b =>
-                {
-                    b.Property<string>("TradeId")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<string>("Asset")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<decimal>("Pnl")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("TradeId", "Asset");
-
-                    b.HasIndex("TradeId");
-
-                    b.ToTable("assetportfoliotradepnl");
-                });
-
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PortfolioTradeEntity", b =>
                 {
                     b.Property<string>("TradeId")

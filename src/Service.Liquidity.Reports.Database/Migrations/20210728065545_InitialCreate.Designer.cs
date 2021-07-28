@@ -10,7 +10,7 @@ using Service.Liquidity.Reports.Database;
 namespace Service.Liquidity.Reports.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210726130623_InitialCreate")]
+    [Migration("20210728065545_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -152,26 +152,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("changebalancehistory");
-                });
-
-            modelBuilder.Entity("Service.Liquidity.Reports.Database.PnlByAssetEntity", b =>
-                {
-                    b.Property<string>("TradeId")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<string>("Asset")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<decimal>("Pnl")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("TradeId", "Asset");
-
-                    b.HasIndex("TradeId");
-
-                    b.ToTable("assetportfoliotradepnl");
                 });
 
             modelBuilder.Entity("Service.Liquidity.Reports.Database.PortfolioTradeEntity", b =>

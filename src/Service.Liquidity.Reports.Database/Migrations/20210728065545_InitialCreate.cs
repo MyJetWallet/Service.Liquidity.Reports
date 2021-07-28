@@ -12,20 +12,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 name: "lp_reports");
 
             migrationBuilder.CreateTable(
-                name: "assetportfoliotradepnl",
-                schema: "lp_reports",
-                columns: table => new
-                {
-                    Asset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    TradeId = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    Pnl = table.Column<decimal>(type: "numeric", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_assetportfoliotradepnl", x => new { x.TradeId, x.Asset });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "assetportfoliotrades",
                 schema: "lp_reports",
                 columns: table => new
@@ -161,12 +147,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_assetportfoliotradepnl_TradeId",
-                schema: "lp_reports",
-                table: "assetportfoliotradepnl",
-                column: "TradeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_assetportfoliotrades_BaseAsset",
                 schema: "lp_reports",
                 table: "assetportfoliotrades",
@@ -236,10 +216,6 @@ namespace Service.Liquidity.Reports.Database.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "assetportfoliotradepnl",
-                schema: "lp_reports");
-
             migrationBuilder.DropTable(
                 name: "assetportfoliotrades",
                 schema: "lp_reports");

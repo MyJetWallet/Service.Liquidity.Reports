@@ -21,13 +21,11 @@ namespace Service.Liquidity.Reports.Database
         private const string PositionTableName = "portfolio_position";
         private const string AssetPortfolioTradeTableName = "assetportfoliotrades";
         private const string ChangeBalanceHistoryTableName = "changebalancehistory";
-        private const string PnlByAssetTableName = "assetportfoliotradepnl";
 
         public DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
 
         public DbSet<PortfolioTradeEntity> PortfolioTrades { get; set; }
         private DbSet<AssetPortfolioTrade> AssetPortfolioTrades { get; set; }
-        private DbSet<PnlByAssetEntity> PnlByAssets { get; set; }
 
         public DbSet<PositionAssociationEntity> PositionAssociations { get; set; }
 
@@ -101,7 +99,6 @@ namespace Service.Liquidity.Reports.Database
 
             SetTradeEntity(modelBuilder);
             SetChangeBalanceHistoryEntity(modelBuilder);
-            SetPnlByAssetEntity(modelBuilder);
             
             base.OnModelCreating(modelBuilder);
         }
@@ -130,23 +127,10 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.User).HasMaxLength(64);
             modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.TotalReleasePnl);
 
-            modelBuilder.Entity<AssetPortfolioTrade>().Ignore(e => e.ReleasePnl);
-            
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.TradeId).IsUnique();
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.Source);
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.BaseAsset);
             modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.QuoteAsset);
-        }
-        
-        private void SetPnlByAssetEntity(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<PnlByAssetEntity>().ToTable(PnlByAssetTableName);
-            modelBuilder.Entity<PnlByAssetEntity>().HasKey(e => new {e.TradeId, e.Asset});
-            modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.Asset).HasMaxLength(64);
-            modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.Pnl);
-            modelBuilder.Entity<PnlByAssetEntity>().Property(e => e.TradeId).HasMaxLength(64);
-
-            modelBuilder.Entity<PnlByAssetEntity>().HasIndex(e => e.TradeId);
         }
         
         private void SetChangeBalanceHistoryEntity(ModelBuilder modelBuilder)
@@ -204,34 +188,8 @@ namespace Service.Liquidity.Reports.Database
                 .UpsertRange(trades)
                 .On(e => e.TradeId)
                 .RunAsync();
-
-            var pnlCollection = new List<PnlByAssetEntity>();
-            foreach (var trade in trades)
-            {
-                if (trade.ReleasePnl != null)
-                {
-                    var pnlByTrade = new List<PnlByAssetEntity>();
-                    foreach (var pnl in trade.ReleasePnl)
-                    {
-                        var newPnlEntity = PnlByAssetEntity.CreateByParent(pnl, trade.TradeId);
-                        pnlByTrade.Add(newPnlEntity);
-                    }
-                    pnlCollection.AddRange(pnlByTrade);
-                }
-            }
-
-            await PnlByAssets
-                .UpsertRange(pnlCollection)
-                .On(e => new {e.TradeId, e.Asset})
-                .RunAsync();
         }
 
-        public async Task<List<PnlByAssetEntity>> GetPnlEntityByTradeId(string tradeId)
-        {
-            return PnlByAssets
-                .Where(e => e.TradeId == tradeId)
-                .ToList();
-        }
 
         public async Task<List<AssetPortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
         {
