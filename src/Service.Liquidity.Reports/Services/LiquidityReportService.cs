@@ -119,7 +119,23 @@ namespace Service.Liquidity.Reports.Services
                 response.Success = false;
                 response.ErrorText = exception.Message;
             }
+            return response;
+        }
 
+        public async Task<GetManualSettlementHistoryResponse> GetManualSettlementHistoryAsync()
+        {
+            var response = new GetManualSettlementHistoryResponse();
+            try
+            {
+                await using var ctx = _contextFactory.Create();
+                response.Settlements = await ctx.GetManualSettlementHistory();
+                response.Success = true;
+            }
+            catch (Exception exception)
+            {
+                response.Success = false;
+                response.ErrorText = exception.Message;
+            }
             return response;
         }
     }

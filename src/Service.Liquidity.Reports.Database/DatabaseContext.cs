@@ -21,8 +21,10 @@ namespace Service.Liquidity.Reports.Database
         private const string PositionTableName = "portfolio_position";
         private const string AssetPortfolioTradeTableName = "assetportfoliotrades";
         private const string ChangeBalanceHistoryTableName = "changebalancehistory";
+        private const string ManualSettlementHistoryTableName = "manualsettlementhistory";
 
-        public DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
+        private DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
+        private DbSet<ManualSettlement> ManualSettlementHistories { get; set; }
 
         public DbSet<PortfolioTradeEntity> PortfolioTrades { get; set; }
         private DbSet<AssetPortfolioTrade> AssetPortfolioTrades { get; set; }
@@ -99,10 +101,28 @@ namespace Service.Liquidity.Reports.Database
 
             SetTradeEntity(modelBuilder);
             SetChangeBalanceHistoryEntity(modelBuilder);
+            SetManualSettlementHistoryEntity(modelBuilder);
             
             base.OnModelCreating(modelBuilder);
         }
-        
+
+        private void SetManualSettlementHistoryEntity(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ManualSettlement>().ToTable(ManualSettlementHistoryTableName);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<ManualSettlement>().HasKey(e => e.Id);
+            
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.BrokerId).HasMaxLength(64);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.WalletFrom).HasMaxLength(64);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.WalletTo).HasMaxLength(64);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.VolumeFrom);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.VolumeTo);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.SettlementDate);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.Comment).HasMaxLength(256);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.User).HasMaxLength(64);
+        }
+
         private void SetTradeEntity(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AssetPortfolioTrade>().ToTable(AssetPortfolioTradeTableName);
@@ -166,6 +186,12 @@ namespace Service.Liquidity.Reports.Database
             return result;
         }
         
+        public async Task SaveManualSettlementHistoryAsync(IEnumerable<ManualSettlement> settlements)
+        {
+            await ManualSettlementHistories.AddRangeAsync(settlements);
+            await SaveChangesAsync();
+        }
+        
         public async Task SaveChangeBalanceHistoryAsync(IEnumerable<ChangeBalanceHistory> histories)
         {
             await ChangeBalanceHistories.AddRangeAsync(histories);
@@ -174,6 +200,10 @@ namespace Service.Liquidity.Reports.Database
         public async Task<List<ChangeBalanceHistory>> GetChangeBalanceHistory()
         {
             return ChangeBalanceHistories.ToList();
+        }
+        public async Task<List<ManualSettlement>> GetManualSettlementHistory()
+        {
+            return ManualSettlementHistories.ToList();
         }
         
         public override void Dispose()

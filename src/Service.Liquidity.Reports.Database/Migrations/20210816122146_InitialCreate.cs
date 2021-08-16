@@ -66,6 +66,28 @@ namespace Service.Liquidity.Reports.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "manualsettlementhistory",
+                schema: "lp_reports",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BrokerId = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    WalletFrom = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    WalletTo = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    Asset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    VolumeFrom = table.Column<decimal>(type: "numeric", nullable: false),
+                    VolumeTo = table.Column<decimal>(type: "numeric", nullable: false),
+                    Comment = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    User = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    SettlementDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_manualsettlementhistory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "portfolio_position",
                 schema: "lp_reports",
                 columns: table => new
@@ -222,6 +244,10 @@ namespace Service.Liquidity.Reports.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "changebalancehistory",
+                schema: "lp_reports");
+
+            migrationBuilder.DropTable(
+                name: "manualsettlementhistory",
                 schema: "lp_reports");
 
             migrationBuilder.DropTable(

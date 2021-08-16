@@ -27,6 +27,10 @@ namespace Service.Liquidity.Reports.Modules
             builder.RegisterMyServiceBusSubscriberBatch<ChangeBalanceHistory>(serviceBusClient, ChangeBalanceHistory.TopicName, 
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
+            
+            builder.RegisterMyServiceBusSubscriberBatch<ManualSettlement>(serviceBusClient, ManualSettlement.TopicName, 
+                $"LiquidityReports",
+                TopicQueueType.PermanentWithSingleConnection);
         }
     }
 }

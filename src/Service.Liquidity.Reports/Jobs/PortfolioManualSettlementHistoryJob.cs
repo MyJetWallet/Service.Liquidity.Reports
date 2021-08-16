@@ -8,25 +8,25 @@ using Service.Liquidity.Reports.Database;
 
 namespace Service.Liquidity.Reports.Jobs
 {
-    public class PortfolioChangeBalanceHistoryJob : IStartable
+    public class PortfolioManualSettlementHistoryJob : IStartable
     {
-        private readonly ILogger<PortfolioChangeBalanceHistoryJob> _logger;
+        private readonly ILogger<PortfolioManualSettlementHistoryJob> _logger;
         private readonly DatabaseContextFactory _contextFactory;
         
-        public PortfolioChangeBalanceHistoryJob(ISubscriber<IReadOnlyList<ChangeBalanceHistory>> subscriber,
+        public PortfolioManualSettlementHistoryJob(ISubscriber<IReadOnlyList<ManualSettlement>> subscriber,
             DatabaseContextFactory contextFactory,
-            ILogger<PortfolioChangeBalanceHistoryJob> logger)
+            ILogger<PortfolioManualSettlementHistoryJob> logger)
         {
             _contextFactory = contextFactory;
             _logger = logger;
             subscriber.Subscribe(HandleChangeBalanceHistory);
         }
 
-        private async ValueTask HandleChangeBalanceHistory(IReadOnlyList<ChangeBalanceHistory> histories)
+        private async ValueTask HandleChangeBalanceHistory(IReadOnlyList<ManualSettlement> settlements)
         {
-            _logger.LogInformation($"PortfolioChangeBalanceHistoryJob handle {histories.Count} histories.");
+            _logger.LogInformation($"PortfolioManualSettlementHistoryJob handle {settlements.Count} settlements.");
             await using var ctx = _contextFactory.Create();
-            await ctx.SaveChangeBalanceHistoryAsync(histories);
+            await ctx.SaveManualSettlementHistoryAsync(settlements);
         }
 
         public void Start()
