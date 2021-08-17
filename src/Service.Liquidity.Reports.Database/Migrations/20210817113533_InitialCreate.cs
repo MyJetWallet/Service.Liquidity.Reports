@@ -37,7 +37,9 @@ namespace Service.Liquidity.Reports.Database.Migrations
                     Source = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     Comment = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     User = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    TotalReleasePnl = table.Column<decimal>(type: "numeric", nullable: false)
+                    TotalReleasePnl = table.Column<decimal>(type: "numeric", nullable: false),
+                    FeeAsset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    FeeVolume = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
