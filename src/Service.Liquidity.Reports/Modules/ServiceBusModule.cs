@@ -2,7 +2,6 @@
 using MyJetWallet.Sdk.Service;
 using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.Abstractions;
-using Service.Liquidity.Engine.Client;
 using Service.Liquidity.Portfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Modules
@@ -15,11 +14,6 @@ namespace Service.Liquidity.Reports.Modules
 
             const string queryName = "Liquidity-Reports";
 
-            builder
-                .RegisterPortfolioTradeSubscriber(serviceBusClient, queryName, TopicQueueType.Permanent)
-                .RegisterPositionPortfolioSubscriber(serviceBusClient, queryName, TopicQueueType.Permanent)
-                .RegisterPositionAssociationSubscriber(serviceBusClient, queryName, TopicQueueType.Permanent);
-            
             builder.RegisterMyServiceBusSubscriberBatch<AssetPortfolioTrade>(serviceBusClient, AssetPortfolioTrade.TopicName, 
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);

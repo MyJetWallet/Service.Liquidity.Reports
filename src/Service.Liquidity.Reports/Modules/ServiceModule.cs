@@ -11,12 +11,6 @@ namespace Service.Liquidity.Reports.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<ReportAggregator>()
-                .AsSelf()
-                .AutoActivate()
-                .SingleInstance();
-            
-            builder
                 .RegisterType<PortfolioTradeJob>()
                 .As<IStartable>()
                 .AutoActivate()
