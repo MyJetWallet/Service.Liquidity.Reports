@@ -30,7 +30,9 @@ namespace Service.Liquidity.Reports
 
             services.AddMyTelemetry("SP-", Program.Settings.ZipkinUrl);
 
+            DatabaseContext.LoggerFactory = Program.LogFactory.ToDatabaseLogger();
             services.AddDatabase(DatabaseContext.Schema, Program.Settings.PostgresConnectionString, o => new DatabaseContext(o));
+            DatabaseContext.LoggerFactory = null;
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
