@@ -61,6 +61,7 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<ManualSettlement>().Property(e => e.SettlementDate);
             modelBuilder.Entity<ManualSettlement>().Property(e => e.Comment).HasMaxLength(256);
             modelBuilder.Entity<ManualSettlement>().Property(e => e.User).HasMaxLength(64);
+            modelBuilder.Entity<ManualSettlement>().Property(e => e.ReleasedPnl);
         }
 
         private void SetTradeEntity(ModelBuilder modelBuilder)
