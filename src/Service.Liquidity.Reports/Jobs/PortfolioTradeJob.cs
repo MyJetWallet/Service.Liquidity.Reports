@@ -27,6 +27,12 @@ namespace Service.Liquidity.Reports.Jobs
         {
             _logger.LogInformation($"PortfolioTradeJob handle {trades.Count} trades.");
 
+            var count = trades.Count;
+            trades = trades.GroupBy(e => e.TradeId).Select(e => e.First()).ToList();
+            
+            if (trades.Count != count)
+                _logger.LogInformation($"PortfolioTradeJob handle {trades.Count} trades AFTER DEDUBLICATE.");
+            
             await using var ctx = _contextFactory.Create();
             await ctx.SaveTradesAsync(trades);
         }
