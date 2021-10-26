@@ -17,9 +17,13 @@ namespace Service.Liquidity.Reports.Database
         private const string AssetPortfolioTradeTableName = "assetportfoliotrades";
         private const string ChangeBalanceHistoryTableName = "changebalancehistory";
         private const string ManualSettlementHistoryTableName = "manualsettlementhistory";
+        private const string FeeShareSettlementHistoryTableName = "feesharesettlementhistory";
 
         private DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
         private DbSet<ManualSettlement> ManualSettlementHistories { get; set; }
+        
+        private DbSet<FeeShareSettlement> FeeShareSettlementHistories { get; set; }
+
         private DbSet<AssetPortfolioTrade> AssetPortfolioTrades { get; set; }
         public DatabaseContext(DbContextOptions options) : base(options)
         {
@@ -42,7 +46,7 @@ namespace Service.Liquidity.Reports.Database
             SetTradeEntity(modelBuilder);
             SetChangeBalanceHistoryEntity(modelBuilder);
             SetManualSettlementHistoryEntity(modelBuilder);
-            
+            SetFeeShareSettlementHistoryEntity(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
 
@@ -64,6 +68,22 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<ManualSettlement>().Property(e => e.ReleasedPnl);
         }
 
+        private void SetFeeShareSettlementHistoryEntity(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<FeeShareSettlement>().ToTable(FeeShareSettlementHistoryTableName);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<FeeShareSettlement>().HasKey(e => e.Id);
+            
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.BrokerId).HasMaxLength(64);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.WalletFrom).HasMaxLength(64);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.WalletTo).HasMaxLength(64);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.VolumeFrom);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.VolumeTo);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.SettlementDate);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.Comment).HasMaxLength(2048);
+            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.ReferrerClientId).HasMaxLength(128);
+        }
         private void SetTradeEntity(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AssetPortfolioTrade>().ToTable(AssetPortfolioTradeTableName);
@@ -117,6 +137,11 @@ namespace Service.Liquidity.Reports.Database
             await SaveChangesAsync();
         }
         
+        public async Task SaveFeeShareSettlementHistoryAsync(IEnumerable<FeeShareSettlement> settlements)
+        {
+            await FeeShareSettlementHistories.AddRangeAsync(settlements);
+            await SaveChangesAsync();
+        }
         public async Task SaveChangeBalanceHistoryAsync(IEnumerable<ChangeBalanceHistory> histories)
         {
             await ChangeBalanceHistories.AddRangeAsync(histories);
@@ -129,6 +154,11 @@ namespace Service.Liquidity.Reports.Database
         public async Task<List<ManualSettlement>> GetManualSettlementHistory()
         {
             return ManualSettlementHistories.ToList();
+        }
+        
+        public async Task<List<FeeShareSettlement>> GetFeeShareSettlementHistory()
+        {
+            return FeeShareSettlementHistories.ToList();
         }
         
         public override void Dispose()

@@ -84,5 +84,21 @@ namespace Service.Liquidity.Reports.Services
             }
             return response;
         }
+
+        public async Task<GetFeeShareSettlementHistoryResponse> GetFeeShareSettlementHistoryAsync()
+        {
+            var response = new GetFeeShareSettlementHistoryResponse();
+            try
+            {
+                await using var ctx = _contextFactory.Create();
+                response.Settlements = await ctx.GetFeeShareSettlementHistory();
+                response.Success = true;
+            }
+            catch (Exception exception)
+            {
+                response.Success = false;
+                response.ErrorText = exception.Message;
+            }
+            return response;        }
     }
 }

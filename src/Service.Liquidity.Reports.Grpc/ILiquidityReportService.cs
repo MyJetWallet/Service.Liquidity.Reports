@@ -12,7 +12,11 @@ namespace Service.Liquidity.Reports.Grpc
 
         [OperationContract]
         Task<GetChangeBalanceHistoryResponse> GetChangeBalanceHistoryAsync();
+        
         [OperationContract]
         Task<GetManualSettlementHistoryResponse> GetManualSettlementHistoryAsync();
+        
+        [OperationContract]
+        Task<GetFeeShareSettlementHistoryResponse> GetFeeShareSettlementHistoryAsync();
     }
 }

@@ -25,6 +25,10 @@ namespace Service.Liquidity.Reports.Modules
             builder.RegisterMyServiceBusSubscriberBatch<ManualSettlement>(serviceBusClient, ManualSettlement.TopicName, 
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
+            
+            builder.RegisterMyServiceBusSubscriberBatch<FeeShareSettlement>(serviceBusClient, FeeShareSettlement.TopicName, 
+                $"LiquidityReports",
+                TopicQueueType.PermanentWithSingleConnection);
         }
     }
 }

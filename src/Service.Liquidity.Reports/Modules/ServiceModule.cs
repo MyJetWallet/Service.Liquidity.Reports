@@ -27,6 +27,12 @@ namespace Service.Liquidity.Reports.Modules
                 .As<IStartable>()
                 .AutoActivate()
                 .SingleInstance();
+            
+            builder
+                .RegisterType<PortfolioFeeShareSettlementHistoryJob>()
+                .As<IStartable>()
+                .AutoActivate()
+                .SingleInstance();
 
             builder.RegisterType<DatabaseContextFactory>().AsSelf().SingleInstance();
         }
