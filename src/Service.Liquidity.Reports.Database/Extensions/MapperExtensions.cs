@@ -24,7 +24,7 @@ namespace Service.Liquidity.Reports.Database.Extensions
                 Comment = portfolioSettlement.Comment,
                 User = portfolioSettlement.User,
                 SettlementDate = portfolioSettlement.SettlementDate,
-                ReleasedPnl = 0 //portfolioSettlement.ReleasedPnl
+                ReleasedPnl = portfolioSettlement.ReleasedPnl
             };
         }
 
@@ -42,7 +42,7 @@ namespace Service.Liquidity.Reports.Database.Extensions
                 Comment = portfolioSettlement.Comment,
                 User = portfolioSettlement.User,
                 SettlementDate = portfolioSettlement.SettlementDate,
-                //ReleasedPnl = portfolioSettlement.ReleasedPnl
+                ReleasedPnl = portfolioSettlement.ReleasedPnl
             };
         }
     }

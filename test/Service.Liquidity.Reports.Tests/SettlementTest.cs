@@ -29,7 +29,8 @@ namespace Service.Liquidity.Reports.Tests
                     VolumeTo = 2.0m,
                     Comment = "Correction Converter to Binance",
                     User = "user@user",
-                    SettlementDate = DateTime.UtcNow
+                    SettlementDate = DateTime.UtcNow,
+                    ReleasedPnl = 1.99m
                 },
                 new PortfolioSettlement()
                 {
@@ -42,7 +43,8 @@ namespace Service.Liquidity.Reports.Tests
                     VolumeTo = 3.0m,
                     Comment = "Correction Ftx to Binance",
                     User = "user@user",
-                    SettlementDate = DateTime.UtcNow
+                    SettlementDate = DateTime.UtcNow,
+                    ReleasedPnl = 1m
                 },
                 new PortfolioSettlement()
                 {
@@ -55,7 +57,8 @@ namespace Service.Liquidity.Reports.Tests
                     VolumeTo = 999.0m,
                     Comment = "Correction Binance to Converter",
                     User = "user@user",
-                    SettlementDate = DateTime.UtcNow
+                    SettlementDate = DateTime.UtcNow,
+                    ReleasedPnl = 2m
                 }
             }.AsReadOnly();
 
@@ -81,7 +84,7 @@ namespace Service.Liquidity.Reports.Tests
                     Comment = "Correction Converter to Binance",
                     User = "user@user",
                     SettlementDate = DateTime.UtcNow,
-                    ReleasedPnl = 0m
+                    ReleasedPnl = 1.3m
                 },
                 new Settlement()
                 {
@@ -95,7 +98,7 @@ namespace Service.Liquidity.Reports.Tests
                     Comment = "Correction Ftx to Binance",
                     User = "user@user",
                     SettlementDate = DateTime.UtcNow,
-                    ReleasedPnl = 0m
+                    ReleasedPnl = 2m
 
                 },
                 new Settlement()
@@ -110,7 +113,7 @@ namespace Service.Liquidity.Reports.Tests
                     Comment = "Correction Binance to Converter",
                     User = "user@user",
                     SettlementDate = DateTime.UtcNow,
-                    ReleasedPnl = 0m
+                    ReleasedPnl = 3m
                 }
             }.AsReadOnly();
 
