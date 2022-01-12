@@ -6,6 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Postgres;
 using Service.Liquidity.Portfolio.Domain.Models;
+using Service.Liquidity.Reports.Database.Extensions;
+using Service.Liquidity.Reports.Domain.Models;
+using Service.Liquidity.TradingPortfolio.Domain.Models;
+using ChangeBalanceHistory = Service.Liquidity.Portfolio.Domain.Models.ChangeBalanceHistory;
 
 namespace Service.Liquidity.Reports.Database
 {
@@ -21,7 +25,7 @@ namespace Service.Liquidity.Reports.Database
         private const string FeeShareSettlementHistoryTableName = "feesharesettlementhistory";
 
         private DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
-        private DbSet<ManualSettlement> ManualSettlementHistories { get; set; }
+        private DbSet<Settlement> ManualSettlementHistories { get; set; }
         
         private DbSet<FeeShareSettlement> FeeShareSettlementHistories { get; set; }
 
@@ -43,20 +47,20 @@ namespace Service.Liquidity.Reports.Database
 
         private void SetManualSettlementHistoryEntity(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ManualSettlement>().ToTable(ManualSettlementHistoryTableName);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.Id).UseIdentityColumn();
-            modelBuilder.Entity<ManualSettlement>().HasKey(e => e.Id);
+            modelBuilder.Entity<Settlement>().ToTable(ManualSettlementHistoryTableName);
+            modelBuilder.Entity<Settlement>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<Settlement>().HasKey(e => e.Id);
             
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.BrokerId).HasMaxLength(64);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.WalletFrom).HasMaxLength(64);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.WalletTo).HasMaxLength(64);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.Asset).HasMaxLength(64);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.VolumeFrom);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.VolumeTo);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.SettlementDate);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.Comment).HasMaxLength(256);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.User).HasMaxLength(64);
-            modelBuilder.Entity<ManualSettlement>().Property(e => e.ReleasedPnl);
+            modelBuilder.Entity<Settlement>().Property(e => e.BrokerId).HasMaxLength(64);
+            modelBuilder.Entity<Settlement>().Property(e => e.WalletFrom).HasMaxLength(64);
+            modelBuilder.Entity<Settlement>().Property(e => e.WalletTo).HasMaxLength(64);
+            modelBuilder.Entity<Settlement>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<Settlement>().Property(e => e.VolumeFrom);
+            modelBuilder.Entity<Settlement>().Property(e => e.VolumeTo);
+            modelBuilder.Entity<Settlement>().Property(e => e.SettlementDate);
+            modelBuilder.Entity<Settlement>().Property(e => e.Comment).HasMaxLength(256);
+            modelBuilder.Entity<Settlement>().Property(e => e.User).HasMaxLength(64);
+            modelBuilder.Entity<Settlement>().Property(e => e.ReleasedPnl);
         }
 
         private void SetFeeShareSettlementHistoryEntity(ModelBuilder modelBuilder)
@@ -122,7 +126,7 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<ChangeBalanceHistory>().Property(e => e.User).HasMaxLength(64);
         }
         
-        public async Task SaveManualSettlementHistoryAsync(IEnumerable<ManualSettlement> settlements)
+        public async Task SaveManualSettlementHistoryAsync(IEnumerable<Settlement> settlements)
         {
             await ManualSettlementHistories.AddRangeAsync(settlements);
             await SaveChangesAsync();
@@ -142,9 +146,11 @@ namespace Service.Liquidity.Reports.Database
         {
             return ChangeBalanceHistories.ToList();
         }
-        public async Task<List<ManualSettlement>> GetManualSettlementHistory()
+        public async Task<List<PortfolioSettlement>> GetManualSettlementHistory()
         {
-            return ManualSettlementHistories.ToList();
+            return ManualSettlementHistories
+                .Select(e => e.ToPortfolioSettlement())
+                .ToList();
         }
         
         public async Task<List<FeeShareSettlement>> GetFeeShareSettlementHistory()
