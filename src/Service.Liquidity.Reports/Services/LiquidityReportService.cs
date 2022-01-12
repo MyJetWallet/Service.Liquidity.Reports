@@ -74,7 +74,7 @@ namespace Service.Liquidity.Reports.Services
             try
             {
                 await using var ctx = _contextFactory.Create();
-                response.Settlements = await ctx.GetManualSettlementHistory();
+                response.PortfolioSettlements = await ctx.GetManualSettlementHistory();
                 response.Success = true;
             }
             catch (Exception exception)
