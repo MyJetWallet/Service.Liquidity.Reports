@@ -4,7 +4,6 @@ using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.Abstractions;
 using Service.Liquidity.Portfolio.Domain.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
-using ChangeBalanceHistory = Service.Liquidity.Portfolio.Domain.Models.ChangeBalanceHistory;
 
 namespace Service.Liquidity.Reports.Modules
 {
@@ -20,7 +19,7 @@ namespace Service.Liquidity.Reports.Modules
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
 
-            builder.RegisterMyServiceBusSubscriberBatch<ChangeBalanceHistory>(serviceBusClient, ChangeBalanceHistory.TopicName, 
+            builder.RegisterMyServiceBusSubscriberBatch<PortfolioChangeBalance>(serviceBusClient, PortfolioChangeBalance.TopicName, 
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
             

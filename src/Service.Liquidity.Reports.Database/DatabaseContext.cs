@@ -9,7 +9,6 @@ using Service.Liquidity.Portfolio.Domain.Models;
 using Service.Liquidity.Reports.Database.Extensions;
 using Service.Liquidity.Reports.Domain.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
-using ChangeBalanceHistory = Service.Liquidity.Portfolio.Domain.Models.ChangeBalanceHistory;
 
 namespace Service.Liquidity.Reports.Database
 {
