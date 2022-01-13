@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
-using Service.Liquidity.Portfolio.Domain.Models;
 using Service.Liquidity.Reports.Database;
-using Service.Liquidity.Reports.Domain.Models;
+using Service.Liquidity.Reports.Database.Extensions;
+using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Jobs
 {
@@ -14,7 +15,7 @@ namespace Service.Liquidity.Reports.Jobs
         private readonly ILogger<PortfolioFeeShareSettlementHistoryJob> _logger;
         private readonly DatabaseContextFactory _contextFactory;
         
-        public PortfolioFeeShareSettlementHistoryJob(ISubscriber<IReadOnlyList<FeeShareSettlement>> subscriber,
+        public PortfolioFeeShareSettlementHistoryJob(ISubscriber<IReadOnlyList<PortfolioFeeShare>> subscriber,
             DatabaseContextFactory contextFactory,
             ILogger<PortfolioFeeShareSettlementHistoryJob> logger)
         {
@@ -23,9 +24,10 @@ namespace Service.Liquidity.Reports.Jobs
             subscriber.Subscribe(HandleChangeBalanceHistory);
         }
 
-        private async ValueTask HandleChangeBalanceHistory(IReadOnlyList<FeeShareSettlement> settlements)
+        private async ValueTask HandleChangeBalanceHistory(IReadOnlyList<PortfolioFeeShare> portfolioFeeShare)
         {
-            _logger.LogInformation($"PortfolioFeeShareSettlementHistoryJob handle {settlements.Count} settlements.");
+            _logger.LogInformation($"PortfolioFeeShareSettlementHistoryJob handle {portfolioFeeShare.Count} portfolioFeeShare.");
+            var settlements = portfolioFeeShare.Select(e => e.ToFeeShare());
             await using var ctx = _contextFactory.Create();
             await ctx.SaveFeeShareSettlementHistoryAsync(settlements);
         }

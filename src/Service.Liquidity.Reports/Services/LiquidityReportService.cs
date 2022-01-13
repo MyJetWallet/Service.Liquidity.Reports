@@ -91,7 +91,7 @@ namespace Service.Liquidity.Reports.Services
             try
             {
                 await using var ctx = _contextFactory.Create();
-                response.Settlements = await ctx.GetFeeShareSettlementHistory();
+                response.PortfolioFeeShares = await ctx.GetFeeShareSettlementHistory();
                 response.Success = true;
             }
             catch (Exception exception)

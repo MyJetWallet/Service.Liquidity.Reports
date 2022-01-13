@@ -22,12 +22,12 @@ namespace Service.Liquidity.Reports.Database
         private const string AssetPortfolioTradeTableName = "assetportfoliotrades";
         private const string ChangeBalanceHistoryTableName = "changebalancehistory";
         private const string ManualSettlementHistoryTableName = "manualsettlementhistory";
-        private const string FeeShareSettlementHistoryTableName = "feesharesettlementhistory";
+        private const string FeeShareTableName = "feesharesettlementhistory";
 
         private DbSet<ChangeBalanceHistory> ChangeBalanceHistories { get; set; }
         private DbSet<Settlement> ManualSettlementHistories { get; set; }
         
-        private DbSet<FeeShareSettlement> FeeShareSettlementHistories { get; set; }
+        private DbSet<FeeShare> FeeShareSettlementHistories { get; set; }
 
         private DbSet<AssetPortfolioTrade> AssetPortfolioTrades { get; set; }
         public DatabaseContext(DbContextOptions options) : base(options)
@@ -65,19 +65,19 @@ namespace Service.Liquidity.Reports.Database
 
         private void SetFeeShareSettlementHistoryEntity(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FeeShareSettlement>().ToTable(FeeShareSettlementHistoryTableName);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.Id).UseIdentityColumn();
-            modelBuilder.Entity<FeeShareSettlement>().HasKey(e => e.Id);
+            modelBuilder.Entity<FeeShare>().ToTable(FeeShareTableName);
+            modelBuilder.Entity<FeeShare>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<FeeShare>().HasKey(e => e.Id);
             
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.BrokerId).HasMaxLength(64);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.WalletFrom).HasMaxLength(64);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.WalletTo).HasMaxLength(64);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.Asset).HasMaxLength(64);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.VolumeFrom);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.VolumeTo);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.SettlementDate);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.Comment).HasMaxLength(2048);
-            modelBuilder.Entity<FeeShareSettlement>().Property(e => e.ReferrerClientId).HasMaxLength(128);
+            modelBuilder.Entity<FeeShare>().Property(e => e.BrokerId).HasMaxLength(64);
+            modelBuilder.Entity<FeeShare>().Property(e => e.WalletFrom).HasMaxLength(64);
+            modelBuilder.Entity<FeeShare>().Property(e => e.WalletTo).HasMaxLength(64);
+            modelBuilder.Entity<FeeShare>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<FeeShare>().Property(e => e.VolumeFrom);
+            modelBuilder.Entity<FeeShare>().Property(e => e.VolumeTo);
+            modelBuilder.Entity<FeeShare>().Property(e => e.SettlementDate);
+            modelBuilder.Entity<FeeShare>().Property(e => e.Comment).HasMaxLength(2048);
+            modelBuilder.Entity<FeeShare>().Property(e => e.ReferrerClientId).HasMaxLength(128);
         }
         private void SetTradeEntity(ModelBuilder modelBuilder)
         {
@@ -132,7 +132,7 @@ namespace Service.Liquidity.Reports.Database
             await SaveChangesAsync();
         }
         
-        public async Task SaveFeeShareSettlementHistoryAsync(IEnumerable<FeeShareSettlement> settlements)
+        public async Task SaveFeeShareSettlementHistoryAsync(IEnumerable<FeeShare> settlements)
         {
             await FeeShareSettlementHistories.AddRangeAsync(settlements);
             await SaveChangesAsync();
@@ -153,9 +153,11 @@ namespace Service.Liquidity.Reports.Database
                 .ToList();
         }
         
-        public async Task<List<FeeShareSettlement>> GetFeeShareSettlementHistory()
+        public async Task<List<PortfolioFeeShare>> GetFeeShareSettlementHistory()
         {
-            return FeeShareSettlementHistories.ToList();
+            return FeeShareSettlementHistories
+                .Select(e => e.ToPortfolioFeeShare())
+                .ToList();
         }
         
         public override void Dispose()
