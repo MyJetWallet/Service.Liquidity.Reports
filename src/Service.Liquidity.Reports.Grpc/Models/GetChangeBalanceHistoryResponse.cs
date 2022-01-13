@@ -11,6 +11,6 @@ namespace Service.Liquidity.Reports.Grpc.Models
         [DataMember(Order = 1)] public bool Success { get; set; }
         [DataMember(Order = 2)] public List<ChangeBalanceHistory> Histories { get; set; }
         [DataMember(Order = 3)] public string ErrorText { get; set; }
-        [DataMember(Order = 2)] public List<PortfolioChangeBalance> PortfolioChangeBalances { get; set; }
+        [DataMember(Order = 4)] public List<PortfolioChangeBalance> PortfolioChangeBalances { get; set; }
     }
 }
