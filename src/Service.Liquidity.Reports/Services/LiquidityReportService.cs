@@ -57,7 +57,7 @@ namespace Service.Liquidity.Reports.Services
             try
             {
                 await using var ctx = _contextFactory.Create();
-                response.Histories = await ctx.GetChangeBalanceHistory();
+                response.PortfolioChangeBalances = await ctx.GetChangeBalanceHistory();
                 response.Success = true;
             }
             catch (Exception exception)

@@ -5,6 +5,7 @@ using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
 using Service.Liquidity.Portfolio.Domain.Models;
 using Service.Liquidity.Reports.Database;
+using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Jobs
 {
@@ -13,7 +14,7 @@ namespace Service.Liquidity.Reports.Jobs
         private readonly ILogger<PortfolioChangeBalanceHistoryJob> _logger;
         private readonly DatabaseContextFactory _contextFactory;
         
-        public PortfolioChangeBalanceHistoryJob(ISubscriber<IReadOnlyList<ChangeBalanceHistory>> subscriber,
+        public PortfolioChangeBalanceHistoryJob(ISubscriber<IReadOnlyList<PortfolioChangeBalance>> subscriber,
             DatabaseContextFactory contextFactory,
             ILogger<PortfolioChangeBalanceHistoryJob> logger)
         {
@@ -22,7 +23,7 @@ namespace Service.Liquidity.Reports.Jobs
             subscriber.Subscribe(HandleChangeBalanceHistory);
         }
 
-        private async ValueTask HandleChangeBalanceHistory(IReadOnlyList<ChangeBalanceHistory> histories)
+        private async ValueTask HandleChangeBalanceHistory(IReadOnlyList<PortfolioChangeBalance> histories)
         {
             _logger.LogInformation($"PortfolioChangeBalanceHistoryJob handle {histories.Count} histories.");
             await using var ctx = _contextFactory.Create();
