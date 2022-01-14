@@ -5,7 +5,6 @@ using Autofac;
 using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
 using Service.Liquidity.Reports.Database;
-using Service.Liquidity.Reports.Database.Extensions;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Jobs
@@ -27,7 +26,7 @@ namespace Service.Liquidity.Reports.Jobs
         private async ValueTask HandleChangeBalanceHistory(IReadOnlyList<PortfolioSettlement> portfolioSettlements)
         {
             _logger.LogInformation($"PortfolioManualSettlementHistoryJob handle {portfolioSettlements.Count} portfolioSettlements.");
-            var settlements = portfolioSettlements.Select(e => e.ToSettlement());
+            var settlements = portfolioSettlements;
             await using var ctx = _contextFactory.Create();
             await ctx.SaveManualSettlementHistoryAsync(settlements);
         }

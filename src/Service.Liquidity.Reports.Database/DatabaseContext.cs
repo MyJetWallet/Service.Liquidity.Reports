@@ -5,17 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Postgres;
-using Service.Liquidity.Portfolio.Domain.Models;
-using Service.Liquidity.Reports.Database.Extensions;
-using Service.Liquidity.Reports.Domain.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Database
 {
     public class DatabaseContext : MyDbContext
     {
-        private Activity _activity;
-        
+        public Activity _activity;
+
         public const string Schema = "lp_reports";
         
         private const string AssetPortfolioTradeTableName = "assetportfoliotrades";
@@ -24,11 +21,10 @@ namespace Service.Liquidity.Reports.Database
         private const string FeeShareTableName = "feesharesettlementhistory";
 
         private DbSet<PortfolioChangeBalance> ChangeBalanceHistories { get; set; }
-        private DbSet<Settlement> ManualSettlementHistories { get; set; }
-        
-        private DbSet<FeeShare> FeeShareSettlementHistories { get; set; }
-
+        private DbSet<PortfolioSettlement> ManualSettlementHistories { get; set; }
+        private DbSet<PortfolioFeeShare> FeeShareSettlementHistories { get; set; }
         private DbSet<PortfolioTrade> AssetPortfolioTrades { get; set; }
+
         public DatabaseContext(DbContextOptions options) : base(options)
         {
         }
@@ -46,37 +42,37 @@ namespace Service.Liquidity.Reports.Database
 
         private void SetManualSettlementHistoryEntity(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Settlement>().ToTable(ManualSettlementHistoryTableName);
-            modelBuilder.Entity<Settlement>().Property(e => e.Id).UseIdentityColumn();
-            modelBuilder.Entity<Settlement>().HasKey(e => e.Id);
+            modelBuilder.Entity<PortfolioSettlement>().ToTable(ManualSettlementHistoryTableName);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<PortfolioSettlement>().HasKey(e => e.Id);
             
-            modelBuilder.Entity<Settlement>().Property(e => e.BrokerId).HasMaxLength(64);
-            modelBuilder.Entity<Settlement>().Property(e => e.WalletFrom).HasMaxLength(64);
-            modelBuilder.Entity<Settlement>().Property(e => e.WalletTo).HasMaxLength(64);
-            modelBuilder.Entity<Settlement>().Property(e => e.Asset).HasMaxLength(64);
-            modelBuilder.Entity<Settlement>().Property(e => e.VolumeFrom);
-            modelBuilder.Entity<Settlement>().Property(e => e.VolumeTo);
-            modelBuilder.Entity<Settlement>().Property(e => e.SettlementDate);
-            modelBuilder.Entity<Settlement>().Property(e => e.Comment).HasMaxLength(256);
-            modelBuilder.Entity<Settlement>().Property(e => e.User).HasMaxLength(64);
-            modelBuilder.Entity<Settlement>().Property(e => e.ReleasedPnl);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.BrokerId).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.WalletFrom).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.WalletTo).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.VolumeFrom);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.VolumeTo);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.SettlementDate);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.Comment).HasMaxLength(256);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.User).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioSettlement>().Property(e => e.ReleasedPnl);
         }
 
         private void SetFeeShareSettlementHistoryEntity(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FeeShare>().ToTable(FeeShareTableName);
-            modelBuilder.Entity<FeeShare>().Property(e => e.Id).UseIdentityColumn();
-            modelBuilder.Entity<FeeShare>().HasKey(e => e.Id);
+            modelBuilder.Entity<PortfolioFeeShare>().ToTable(FeeShareTableName);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<PortfolioFeeShare>().HasKey(e => e.Id);
             
-            modelBuilder.Entity<FeeShare>().Property(e => e.BrokerId).HasMaxLength(64);
-            modelBuilder.Entity<FeeShare>().Property(e => e.WalletFrom).HasMaxLength(64);
-            modelBuilder.Entity<FeeShare>().Property(e => e.WalletTo).HasMaxLength(64);
-            modelBuilder.Entity<FeeShare>().Property(e => e.Asset).HasMaxLength(64);
-            modelBuilder.Entity<FeeShare>().Property(e => e.VolumeFrom);
-            modelBuilder.Entity<FeeShare>().Property(e => e.VolumeTo);
-            modelBuilder.Entity<FeeShare>().Property(e => e.SettlementDate);
-            modelBuilder.Entity<FeeShare>().Property(e => e.Comment).HasMaxLength(2048);
-            modelBuilder.Entity<FeeShare>().Property(e => e.ReferrerClientId).HasMaxLength(128);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.BrokerId).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.WalletFrom).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.WalletTo).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.VolumeFrom);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.VolumeTo);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.SettlementDate);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.Comment).HasMaxLength(2048);
+            modelBuilder.Entity<PortfolioFeeShare>().Property(e => e.ReferrerClientId).HasMaxLength(128);
         }
         private void SetTradeEntity(ModelBuilder modelBuilder)
         {
@@ -124,13 +120,13 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<PortfolioChangeBalance>().Property(e => e.User).HasMaxLength(64);
         }
         
-        public async Task SaveManualSettlementHistoryAsync(IEnumerable<Settlement> settlements)
+        public async Task SaveManualSettlementHistoryAsync(IEnumerable<PortfolioSettlement> settlements)
         {
             await ManualSettlementHistories.AddRangeAsync(settlements);
             await SaveChangesAsync();
         }
         
-        public async Task SaveFeeShareSettlementHistoryAsync(IEnumerable<FeeShare> settlements)
+        public async Task SaveFeeShareSettlementHistoryAsync(IEnumerable<PortfolioFeeShare> settlements)
         {
             await FeeShareSettlementHistories.AddRangeAsync(settlements);
             await SaveChangesAsync();
@@ -146,16 +142,12 @@ namespace Service.Liquidity.Reports.Database
         }
         public async Task<List<PortfolioSettlement>> GetManualSettlementHistory()
         {
-            return ManualSettlementHistories
-                .Select(e => e.ToPortfolioSettlement())
-                .ToList();
+            return ManualSettlementHistories.ToList();
         }
         
         public async Task<List<PortfolioFeeShare>> GetFeeShareSettlementHistory()
         {
-            return FeeShareSettlementHistories
-                .Select(e => e.ToPortfolioFeeShare())
-                .ToList();
+            return FeeShareSettlementHistories.ToList();
         }
         
         public override void Dispose()
