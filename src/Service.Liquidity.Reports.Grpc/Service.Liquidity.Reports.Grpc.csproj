@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="MyJetWallet.Service.Liquidity.Portfolio.Client" Version="1.7.0" />
-    <PackageReference Include="MyJetWallet.Service.Liquidity.TradingPortfolio.Client" Version="1.5.0" />
+    <PackageReference Include="MyJetWallet.Service.Liquidity.TradingPortfolio.Client" Version="1.6.1" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
   </ItemGroup>
 
