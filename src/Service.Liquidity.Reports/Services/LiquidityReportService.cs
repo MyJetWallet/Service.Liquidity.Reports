@@ -37,7 +37,7 @@ namespace Service.Liquidity.Reports.Services
                 }
 
                 response.Success = true;
-                response.Trades = trades;
+                response.PortfolioTrades = trades;
                 response.IdForNextQuery = idForNextQuery;
             } 
             catch (Exception exception)

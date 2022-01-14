@@ -15,7 +15,7 @@ namespace Service.Liquidity.Reports.Modules
 
             const string queryName = "Liquidity-Reports";
 
-            builder.RegisterMyServiceBusSubscriberBatch<AssetPortfolioTrade>(serviceBusClient, AssetPortfolioTrade.TopicName, 
+            builder.RegisterMyServiceBusSubscriberBatch<PortfolioTrade>(serviceBusClient, PortfolioTrade.TopicName, 
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
 

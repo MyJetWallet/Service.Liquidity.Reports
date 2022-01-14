@@ -6,6 +6,7 @@ using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
 using Service.Liquidity.Portfolio.Domain.Models;
 using Service.Liquidity.Reports.Database;
+using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Jobs
 {
@@ -14,7 +15,7 @@ namespace Service.Liquidity.Reports.Jobs
         private readonly ILogger<PortfolioTradeJob> _logger;
         private readonly DatabaseContextFactory _contextFactory;
         
-        public PortfolioTradeJob(ISubscriber<IReadOnlyList<AssetPortfolioTrade>> subscriber,
+        public PortfolioTradeJob(ISubscriber<IReadOnlyList<PortfolioTrade>> subscriber,
             ILogger<PortfolioTradeJob> logger,
             DatabaseContextFactory contextFactory)
         {
@@ -23,7 +24,7 @@ namespace Service.Liquidity.Reports.Jobs
             subscriber.Subscribe(HandleTrades);
         }
 
-        private async ValueTask HandleTrades(IReadOnlyList<AssetPortfolioTrade> trades)
+        private async ValueTask HandleTrades(IReadOnlyList<PortfolioTrade> trades)
         {
             _logger.LogInformation($"PortfolioTradeJob handle {trades.Count} trades.");
 

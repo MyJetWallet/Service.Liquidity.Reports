@@ -28,7 +28,7 @@ namespace Service.Liquidity.Reports.Database
         
         private DbSet<FeeShare> FeeShareSettlementHistories { get; set; }
 
-        private DbSet<AssetPortfolioTrade> AssetPortfolioTrades { get; set; }
+        private DbSet<PortfolioTrade> AssetPortfolioTrades { get; set; }
         public DatabaseContext(DbContextOptions options) : base(options)
         {
         }
@@ -80,34 +80,33 @@ namespace Service.Liquidity.Reports.Database
         }
         private void SetTradeEntity(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AssetPortfolioTrade>().ToTable(AssetPortfolioTradeTableName);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Id).UseIdentityColumn();
-            modelBuilder.Entity<AssetPortfolioTrade>().HasKey(e => e.Id);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.TradeId).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.AssociateBrokerId).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.WalletName).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.AssociateSymbol).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.BaseAsset).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.QuoteAsset).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Side);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Price);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.BaseVolume);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.QuoteVolume);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.BaseVolumeInUsd);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.QuoteVolumeInUsd);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.DateTime);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.ErrorMessage).HasMaxLength(256);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Source).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.Comment).HasMaxLength(256);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.User).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.TotalReleasePnl);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.FeeAsset).HasMaxLength(64);
-            modelBuilder.Entity<AssetPortfolioTrade>().Property(e => e.FeeVolume);
-
-            modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.TradeId).IsUnique();
-            modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.Source);
-            modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.BaseAsset);
-            modelBuilder.Entity<AssetPortfolioTrade>().HasIndex(e => e.QuoteAsset);
+            modelBuilder.Entity<PortfolioTrade>().ToTable(AssetPortfolioTradeTableName);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<PortfolioTrade>().HasKey(e => e.Id);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.TradeId).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.AssociateBrokerId).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.BaseWalletName).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.QuoteWalletName).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.AssociateSymbol).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.BaseAsset).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.QuoteAsset).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.Side);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.Price);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.BaseVolume);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.QuoteVolume);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.BaseVolumeInUsd);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.QuoteVolumeInUsd);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.DateTime);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.Source).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.Comment).HasMaxLength(256);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.User).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.FeeAsset).HasMaxLength(64);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.FeeVolume);
+            
+            modelBuilder.Entity<PortfolioTrade>().HasIndex(e => e.TradeId).IsUnique();
+            modelBuilder.Entity<PortfolioTrade>().HasIndex(e => e.Source);
+            modelBuilder.Entity<PortfolioTrade>().HasIndex(e => e.BaseAsset);
+            modelBuilder.Entity<PortfolioTrade>().HasIndex(e => e.QuoteAsset);
         }
         
         private void SetChangeBalanceHistoryEntity(ModelBuilder modelBuilder)
@@ -165,7 +164,7 @@ namespace Service.Liquidity.Reports.Database
             base.Dispose();
         }
 
-        public async Task SaveTradesAsync(IReadOnlyList<AssetPortfolioTrade> trades)
+        public async Task SaveTradesAsync(IReadOnlyList<PortfolioTrade> trades)
         {
             await AssetPortfolioTrades
                 .UpsertRange(trades)
@@ -174,7 +173,7 @@ namespace Service.Liquidity.Reports.Database
         }
 
 
-        public async Task<List<AssetPortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
+        public async Task<List<PortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
         {
             if (lastId != 0)
             {
