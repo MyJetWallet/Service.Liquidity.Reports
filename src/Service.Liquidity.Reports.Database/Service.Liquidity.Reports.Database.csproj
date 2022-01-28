@@ -15,7 +15,7 @@
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.6" />
     <PackageReference Include="MyJetWallet.Service.Liquidity.Portfolio.Client" Version="1.7.0" />
     <PackageReference Include="MyJetWallet.Service.Liquidity.TradingPortfolio.Client" Version="1.6.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
   </ItemGroup>
 
   <ItemGroup>
