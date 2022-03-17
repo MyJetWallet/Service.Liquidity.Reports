@@ -35,7 +35,7 @@ namespace Service.Liquidity.Reports.Jobs
             await using var ctx = _contextFactory.Create();
             
             ctx.HedgeOperations.Add(operation.Adapt<HedgeOperationRecord>());
-            ctx.HedgeTrades.AddRange(operation.HedgeTrades.Adapt<IEnumerable<HedgeTradeRecord>>());
+            //ctx.HedgeTrades.AddRange(operation.HedgeTrades.Adapt<IEnumerable<HedgeTradeRecord>>());
 
             await ctx.SaveChangesAsync();
         }
