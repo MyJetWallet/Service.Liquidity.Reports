@@ -140,18 +140,18 @@ namespace Service.Liquidity.Reports.Database
             await ChangeBalanceHistories.AddRangeAsync(histories);
             await SaveChangesAsync();
         }
-        public async Task<List<PortfolioChangeBalance>> GetChangeBalanceHistory()
+        public Task<List<PortfolioChangeBalance>> GetChangeBalanceHistory()
         {
-            return ChangeBalanceHistories.ToList();
+            return Task.FromResult(ChangeBalanceHistories.ToList());
         }
-        public async Task<List<PortfolioSettlement>> GetManualSettlementHistory()
+        public Task<List<PortfolioSettlement>> GetManualSettlementHistory()
         {
-            return ManualSettlementHistories.ToList();
+            return Task.FromResult(ManualSettlementHistories.ToList());
         }
         
-        public async Task<List<PortfolioFeeShare>> GetFeeShareSettlementHistory()
+        public Task<List<PortfolioFeeShare>> GetFeeShareSettlementHistory()
         {
-            return FeeShareSettlementHistories.ToList();
+            return Task.FromResult(FeeShareSettlementHistories.ToList());
         }
         
         public override void Dispose()
@@ -169,36 +169,36 @@ namespace Service.Liquidity.Reports.Database
         }
 
 
-        public async Task<List<PortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
+        public Task<List<PortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
         {
             if (lastId != 0)
             {
                 if (string.IsNullOrWhiteSpace(assetFilter))
                 {
-                    return AssetPortfolioTrades
+                    return Task.FromResult(AssetPortfolioTrades
                         .Where(trade => trade.Id < lastId)
                         .OrderByDescending(trade => trade.Id)
                         .Take(batchSize)
-                        .ToList();
+                        .ToList());
                 }
-                return AssetPortfolioTrades
+                return Task.FromResult(AssetPortfolioTrades
                     .Where(trade => trade.Id < lastId && (trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter)))
                     .OrderByDescending(trade => trade.Id)
                     .Take(batchSize)
-                    .ToList();
+                    .ToList());
             }
             if (string.IsNullOrWhiteSpace(assetFilter))
             {
-                return AssetPortfolioTrades
+                return Task.FromResult(AssetPortfolioTrades
                     .OrderByDescending(trade => trade.Id)
                     .Take(batchSize)
-                    .ToList();
+                    .ToList());
             }
-            return AssetPortfolioTrades
+            return Task.FromResult(AssetPortfolioTrades
                 .Where(trade => trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter))
                 .OrderByDescending(trade => trade.Id)
                 .Take(batchSize)
-                .ToList();
+                .ToList());
         }
     }
 }
