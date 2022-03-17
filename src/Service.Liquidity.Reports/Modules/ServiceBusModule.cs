@@ -2,7 +2,6 @@
 using MyJetWallet.Sdk.Service;
 using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.Abstractions;
-using Service.Liquidity.Portfolio.Domain.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Modules

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Autofac;
 using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
-using Service.Liquidity.Portfolio.Domain.Models;
 using Service.Liquidity.Reports.Database;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
