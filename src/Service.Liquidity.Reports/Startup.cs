@@ -53,6 +53,7 @@ namespace Service.Liquidity.Reports
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcSchema<LiquidityReportService, ILiquidityReportService>();
+                endpoints.MapGrpcSchema<HedgeReportService, IHedgeReportService>();
 
                 endpoints.MapGrpcSchemaRegistry();
 

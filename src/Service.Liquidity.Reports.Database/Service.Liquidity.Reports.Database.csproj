@@ -22,4 +22,13 @@
     <ProjectReference Include="..\Service.Liquidity.Reports.Domain.Models\Service.Liquidity.Reports.Domain.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Entities" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20220317120614_add_hedger_history.cs" />
+    <Compile Remove="Migrations\20220317120614_add_hedger_history.Designer.cs" />
+  </ItemGroup>
+
 </Project>

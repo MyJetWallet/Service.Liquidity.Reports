@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Postgres;
+using Service.Liquidity.Reports.Domain.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Database
@@ -24,6 +25,8 @@ namespace Service.Liquidity.Reports.Database
         private DbSet<PortfolioSettlement> ManualSettlementHistories { get; set; }
         private DbSet<PortfolioFeeShare> FeeShareSettlementHistories { get; set; }
         private DbSet<PortfolioTrade> AssetPortfolioTrades { get; set; }
+        public DbSet<HedgeOperationRecord> HedgeOperations { get; set; }
+        public DbSet<HedgeTradeRecord> HedgeTrades { get; set; }
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
@@ -37,6 +40,7 @@ namespace Service.Liquidity.Reports.Database
             SetChangeBalanceHistoryEntity(modelBuilder);
             SetManualSettlementHistoryEntity(modelBuilder);
             SetFeeShareSettlementHistoryEntity(modelBuilder);
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -119,7 +123,7 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<PortfolioChangeBalance>().Property(e => e.Comment).HasMaxLength(256);
             modelBuilder.Entity<PortfolioChangeBalance>().Property(e => e.User).HasMaxLength(64);
         }
-        
+
         public async Task SaveManualSettlementHistoryAsync(IEnumerable<PortfolioSettlement> settlements)
         {
             await ManualSettlementHistories.AddRangeAsync(settlements);

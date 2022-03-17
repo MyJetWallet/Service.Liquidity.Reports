@@ -1,7 +1,7 @@
 ﻿using Autofac;
-using MyJetWallet.Sdk.Service;
 using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.Abstractions;
+using Service.Liquidity.Hedger.Domain.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Modules
@@ -27,6 +27,10 @@ namespace Service.Liquidity.Reports.Modules
                 TopicQueueType.PermanentWithSingleConnection);
             
             builder.RegisterMyServiceBusSubscriberBatch<PortfolioFeeShare>(serviceBusClient, PortfolioFeeShare.TopicName, 
+                $"LiquidityReports",
+                TopicQueueType.PermanentWithSingleConnection);
+            
+            builder.RegisterMyServiceBusSubscriberBatch<HedgeOperation>(serviceBusClient, HedgeOperation.TopicName, 
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
         }

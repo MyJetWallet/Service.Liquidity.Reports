@@ -22,5 +22,7 @@ namespace Service.Liquidity.Reports.Client
         }
 
         public ILiquidityReportService GetLiquidityReportService() => _channel.CreateGrpcService<ILiquidityReportService>();
+        public IHedgeReportService GetHedgeReportService() => _channel.CreateGrpcService<IHedgeReportService>();
+
     }
 }

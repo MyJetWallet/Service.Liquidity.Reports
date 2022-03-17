@@ -3,6 +3,7 @@ using Autofac.Core;
 using Autofac.Core.Registration;
 using Service.Liquidity.Reports.Database;
 using Service.Liquidity.Reports.Jobs;
+using Service.Liquidity.Reports.Services;
 
 namespace Service.Liquidity.Reports.Modules
 {
@@ -30,6 +31,12 @@ namespace Service.Liquidity.Reports.Modules
             
             builder
                 .RegisterType<PortfolioFeeShareSettlementHistoryJob>()
+                .As<IStartable>()
+                .AutoActivate()
+                .SingleInstance();
+            
+            builder
+                .RegisterType<HedgeOperationJob>()
                 .As<IStartable>()
                 .AutoActivate()
                 .SingleInstance();
