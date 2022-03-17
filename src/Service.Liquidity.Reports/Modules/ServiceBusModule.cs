@@ -30,7 +30,7 @@ namespace Service.Liquidity.Reports.Modules
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
             
-            builder.RegisterMyServiceBusSubscriberBatch<HedgeOperation>(serviceBusClient, HedgeOperation.TopicName, 
+            builder.RegisterMyServiceBusSubscriberSingle<HedgeOperation>(serviceBusClient, HedgeOperation.TopicName, 
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
         }
