@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Service.Liquidity.Reports.Domain.Models;
+using Service.Liquidity.Hedger.Domain.Models;
 
 namespace Service.Liquidity.Reports.Database.Configurations
 {
-    public class HedgeTradeRecordConfiguration : IEntityTypeConfiguration<HedgeTradeRecord>
+    public class HedgeTradeConfiguration : IEntityTypeConfiguration<HedgeTrade>
     {
-        public void Configure(EntityTypeBuilder<HedgeTradeRecord> builder)
+        public void Configure(EntityTypeBuilder<HedgeTrade> builder)
         {
             builder.ToTable("HedgeTrades");
 
@@ -25,7 +25,7 @@ namespace Service.Liquidity.Reports.Database.Configurations
             builder.Property(e => e.QuoteVolume);
 
             builder
-                .HasOne(e => e.HedgeOperation)
+                .HasOne<HedgeOperation>()
                 .WithMany(e => e.HedgeTrades)
                 .HasForeignKey(e => e.HedgeOperationId);
 

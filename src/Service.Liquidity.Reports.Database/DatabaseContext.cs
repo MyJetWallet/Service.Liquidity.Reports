@@ -3,9 +3,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Postgres;
-using Service.Liquidity.Reports.Domain.Models;
+using Service.Liquidity.Hedger.Domain.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Database
@@ -25,8 +24,8 @@ namespace Service.Liquidity.Reports.Database
         private DbSet<PortfolioSettlement> ManualSettlementHistories { get; set; }
         private DbSet<PortfolioFeeShare> FeeShareSettlementHistories { get; set; }
         private DbSet<PortfolioTrade> AssetPortfolioTrades { get; set; }
-        public DbSet<HedgeOperationRecord> HedgeOperations { get; set; }
-        public DbSet<HedgeTradeRecord> HedgeTrades { get; set; }
+        public DbSet<HedgeOperation> HedgeOperations { get; set; }
+        public DbSet<HedgeTrade> HedgeTrades { get; set; }
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {

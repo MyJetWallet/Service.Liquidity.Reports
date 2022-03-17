@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
 using DotNetCoreDecorators;
@@ -8,7 +6,6 @@ using Mapster;
 using Microsoft.Extensions.Logging;
 using Service.Liquidity.Hedger.Domain.Models;
 using Service.Liquidity.Reports.Database;
-using Service.Liquidity.Reports.Domain.Models;
 
 namespace Service.Liquidity.Reports.Jobs
 {
@@ -33,11 +30,11 @@ namespace Service.Liquidity.Reports.Jobs
         {
             try
             {
-                _logger.LogInformation($"Handle {nameof(HedgeOperationRecord)} id: {operation.Id}");
+                _logger.LogInformation($"Handle {nameof(HedgeOperation)} id: {operation.Id}");
 
                 await using var ctx = _contextFactory.Create();
 
-                ctx.HedgeOperations.Add(operation.Adapt<HedgeOperationRecord>());
+                ctx.HedgeOperations.Add(operation);
                 await ctx.SaveChangesAsync();
             }
             catch (Exception ex)
