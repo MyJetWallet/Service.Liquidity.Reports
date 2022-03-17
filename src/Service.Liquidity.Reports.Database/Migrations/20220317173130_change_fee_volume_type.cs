@@ -8,16 +8,18 @@ namespace Service.Liquidity.Reports.Database.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<decimal>(
+            migrationBuilder.DropColumn(
+                name: "FeeVolume",
+                schema: "lp_reports",
+                table: "HedgeTrades");
+            
+            migrationBuilder.AddColumn<string>(
                 name: "FeeVolume",
                 schema: "lp_reports",
                 table: "HedgeTrades",
                 type: "numeric",
                 nullable: false,
-                defaultValue: 0m,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+                defaultValue: 0m);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
