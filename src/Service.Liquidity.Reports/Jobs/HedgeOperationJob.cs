@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -30,14 +31,19 @@ namespace Service.Liquidity.Reports.Jobs
 
         private async ValueTask Handle(HedgeOperation operation)
         {
-            _logger.LogInformation($"Handle {nameof(HedgeOperationRecord)} id: {operation.Id}");
+            try
+            {
+                _logger.LogInformation($"Handle {nameof(HedgeOperationRecord)} id: {operation.Id}");
 
-            await using var ctx = _contextFactory.Create();
-            
-            ctx.HedgeOperations.Add(operation.Adapt<HedgeOperationRecord>());
-            //ctx.HedgeTrades.AddRange(operation.HedgeTrades.Adapt<IEnumerable<HedgeTradeRecord>>());
+                await using var ctx = _contextFactory.Create();
 
-            await ctx.SaveChangesAsync();
+                ctx.HedgeOperations.Add(operation.Adapt<HedgeOperationRecord>());
+                await ctx.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to Handle {@operation}", operation);
+            }
         }
 
         public void Start()
