@@ -30,7 +30,7 @@ namespace Service.Liquidity.Reports.Jobs
         {
             try
             {
-                _logger.LogInformation($"Handle {nameof(HedgeOperation)} id: {operation.Id}");
+                _logger.LogInformation("Handle {@name} id: {@id}", nameof(HedgeOperation), operation.Id);
 
                 await using var ctx = _contextFactory.Create();
 
