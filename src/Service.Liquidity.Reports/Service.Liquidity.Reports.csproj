@@ -19,7 +19,7 @@
     <PackageReference Include="MyJetWallet.Sdk.GrpcSchema" Version="1.0.6" />
     <PackageReference Include="MyJetWallet.Sdk.Postgres" Version="2.2.0" />
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.7" />
-    <PackageReference Include="MyJetWallet.Service.BalanceHistory.Client" Version="2.5.6" />
+    <PackageReference Include="MyJetWallet.Service.BalanceHistory.Client" Version="2.5.8" />
     <PackageReference Include="MyJetWallet.Service.Liquidity.TradingPortfolio.Client" Version="1.8.6" />
     <PackageReference Include="MyJetWallet.Service.Liquidity.Hedger.Client" Version="1.0.12" />
     <PackageReference Include="MyServiceBus.TcpClient" Version="2.4.6" />
