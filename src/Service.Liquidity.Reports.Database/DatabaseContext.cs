@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -166,22 +167,25 @@ namespace Service.Liquidity.Reports.Database
                 .On(e => e.TradeId)
                 .RunAsync();
         }
-
-
-        public Task<List<PortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter)
+        
+        public Task<List<PortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter,
+            PortfolioTradeType requestTypeFilter = PortfolioTradeType.Manual | PortfolioTradeType.None | 
+                                                   PortfolioTradeType.Swap | PortfolioTradeType.AutoHedge)
         {
             if (lastId != 0)
             {
                 if (string.IsNullOrWhiteSpace(assetFilter))
                 {
                     return Task.FromResult(AssetPortfolioTrades
-                        .Where(trade => trade.Id < lastId)
+                        .Where(trade => trade.Id < lastId && trade.Type.HasFlag(requestTypeFilter))
                         .OrderByDescending(trade => trade.Id)
                         .Take(batchSize)
                         .ToList());
                 }
                 return Task.FromResult(AssetPortfolioTrades
-                    .Where(trade => trade.Id < lastId && (trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter)))
+                    .Where(trade => trade.Id < lastId && 
+                                    (trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter)) &&
+                                    trade.Type.HasFlag(requestTypeFilter))
                     .OrderByDescending(trade => trade.Id)
                     .Take(batchSize)
                     .ToList());
@@ -189,12 +193,14 @@ namespace Service.Liquidity.Reports.Database
             if (string.IsNullOrWhiteSpace(assetFilter))
             {
                 return Task.FromResult(AssetPortfolioTrades
+                    .Where(trade => trade.Type.HasFlag(requestTypeFilter))
                     .OrderByDescending(trade => trade.Id)
                     .Take(batchSize)
                     .ToList());
             }
             return Task.FromResult(AssetPortfolioTrades
-                .Where(trade => trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter))
+                .Where(trade => (trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter)) && 
+                                trade.Type.HasFlag(requestTypeFilter))
                 .OrderByDescending(trade => trade.Id)
                 .Take(batchSize)
                 .ToList());

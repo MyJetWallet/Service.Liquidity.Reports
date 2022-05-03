@@ -28,7 +28,9 @@ namespace Service.Liquidity.Reports.Services
             try
             {
                 await using var ctx = _contextFactory.Create();
-                var trades = await ctx.GetAssetPortfolioTrades(request.LastId, request.BatchSize, request.AssetFilter);
+                var trades = await ctx
+                    .GetAssetPortfolioTrades(request.LastId, request.BatchSize, request.AssetFilter, 
+                        request.TypeFilter);
 
                 long idForNextQuery = 0;
                 if (trades.Any())
