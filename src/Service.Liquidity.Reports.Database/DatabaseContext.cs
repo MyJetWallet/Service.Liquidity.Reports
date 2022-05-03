@@ -168,42 +168,31 @@ namespace Service.Liquidity.Reports.Database
                 .RunAsync();
         }
         
-        public Task<List<PortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter,
-            PortfolioTradeType requestTypeFilter = PortfolioTradeType.Manual | PortfolioTradeType.None | 
-                                                   PortfolioTradeType.Swap | PortfolioTradeType.AutoHedge)
+        public async Task<List<PortfolioTrade>> GetAssetPortfolioTrades(long lastId, int batchSize, string assetFilter,
+            List<PortfolioTradeType> requestTypeFilter = null)
         {
-            if (lastId != 0)
+            var query = AssetPortfolioTrades.AsNoTracking();
+            if (lastId > 0)
             {
-                if (string.IsNullOrWhiteSpace(assetFilter))
-                {
-                    return Task.FromResult(AssetPortfolioTrades
-                        .Where(trade => trade.Id < lastId && trade.Type.HasFlag(requestTypeFilter))
-                        .OrderByDescending(trade => trade.Id)
-                        .Take(batchSize)
-                        .ToList());
-                }
-                return Task.FromResult(AssetPortfolioTrades
-                    .Where(trade => trade.Id < lastId && 
-                                    (trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter)) &&
-                                    trade.Type.HasFlag(requestTypeFilter))
-                    .OrderByDescending(trade => trade.Id)
-                    .Take(batchSize)
-                    .ToList());
+                query = query.Where(trade => trade.Id < lastId);
             }
-            if (string.IsNullOrWhiteSpace(assetFilter))
+
+            if (!string.IsNullOrWhiteSpace(assetFilter))
             {
-                return Task.FromResult(AssetPortfolioTrades
-                    .Where(trade => trade.Type.HasFlag(requestTypeFilter))
-                    .OrderByDescending(trade => trade.Id)
-                    .Take(batchSize)
-                    .ToList());
+                query = query.Where(trade => (trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter)));
             }
-            return Task.FromResult(AssetPortfolioTrades
-                .Where(trade => (trade.BaseAsset.Contains(assetFilter) || trade.QuoteAsset.Contains(assetFilter)) && 
-                                trade.Type.HasFlag(requestTypeFilter))
+
+            if (requestTypeFilter !=null)
+            {
+                query = query.Where(trade => requestTypeFilter.Contains(trade.Type));
+            }
+            
+            var result = await query
                 .OrderByDescending(trade => trade.Id)
                 .Take(batchSize)
-                .ToList());
+                .ToListAsync();
+            
+            return result;
         }
     }
 }
