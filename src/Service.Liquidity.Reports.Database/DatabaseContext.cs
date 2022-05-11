@@ -103,6 +103,10 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<PortfolioTrade>().Property(e => e.FeeAsset).HasMaxLength(64);
             modelBuilder.Entity<PortfolioTrade>().Property(e => e.FeeVolume);
             
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.FeeAssetPriceInUsd);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.FeeVolumeInUsd);
+            modelBuilder.Entity<PortfolioTrade>().Property(e => e.Type);
+            
             modelBuilder.Entity<PortfolioTrade>().HasIndex(e => e.TradeId).IsUnique();
             modelBuilder.Entity<PortfolioTrade>().HasIndex(e => e.Source);
             modelBuilder.Entity<PortfolioTrade>().HasIndex(e => e.BaseAsset);
