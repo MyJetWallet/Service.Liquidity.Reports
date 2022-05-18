@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MyJetWallet.Sdk.Postgres;
 using Service.Liquidity.Hedger.Domain.Models;
+using Service.Liquidity.Reports.Database.Entities;
+using Service.Liquidity.Reports.Grpc.Models.Exchange;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Database
@@ -20,6 +22,7 @@ namespace Service.Liquidity.Reports.Database
         private const string ChangeBalanceHistoryTableName = "changebalancehistory";
         private const string ManualSettlementHistoryTableName = "manualsettlementhistory";
         private const string FeeShareTableName = "feesharesettlementhistory";
+        private const string ExchangeWithdrawalsTableName = "exchangewithdrawalshistory";
 
         private DbSet<PortfolioChangeBalance> ChangeBalanceHistories { get; set; }
         private DbSet<PortfolioSettlement> ManualSettlementHistories { get; set; }
@@ -27,6 +30,7 @@ namespace Service.Liquidity.Reports.Database
         private DbSet<PortfolioTrade> AssetPortfolioTrades { get; set; }
         public DbSet<HedgeOperation> HedgeOperations { get; set; }
         public DbSet<HedgeTrade> HedgeTrades { get; set; }
+        public DbSet<Withdrawal> ExchangeWithdrawals { get; set; }
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
@@ -40,7 +44,8 @@ namespace Service.Liquidity.Reports.Database
             SetChangeBalanceHistoryEntity(modelBuilder);
             SetManualSettlementHistoryEntity(modelBuilder);
             SetFeeShareSettlementHistoryEntity(modelBuilder);
-
+            SetExchangeWithdrawalHistoryEntity(modelBuilder);
+            
             base.OnModelCreating(modelBuilder);
         }
 
@@ -127,6 +132,24 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<PortfolioChangeBalance>().Property(e => e.Comment).HasMaxLength(256);
             modelBuilder.Entity<PortfolioChangeBalance>().Property(e => e.User).HasMaxLength(64);
         }
+        
+        private void SetExchangeWithdrawalHistoryEntity(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Withdrawal>().ToTable(ExchangeWithdrawalsTableName);
+            
+            modelBuilder.Entity<Withdrawal>().HasKey(e => e.Id );
+            modelBuilder.Entity<Withdrawal>().Property(e => e.Id).UseIdentityColumn();
+            modelBuilder.Entity<Withdrawal>().HasIndex(e => new {e.Exchange, e.TxId}, "ExchangeTxId").IsUnique();
+            modelBuilder.Entity<Withdrawal>().Property(e => e.TxId).HasMaxLength(64);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.InternalId).HasMaxLength(64);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.Asset).HasMaxLength(64);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.Date);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.Notes).HasMaxLength(64);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.Fee);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.FeeInUsd);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.Volume);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.Exchange).HasMaxLength(64);
+        }
 
         public async Task SaveManualSettlementHistoryAsync(IEnumerable<PortfolioSettlement> settlements)
         {
@@ -197,6 +220,36 @@ namespace Service.Liquidity.Reports.Database
                 .ToListAsync();
             
             return result;
+        }
+        
+        public async Task<IEnumerable<Withdrawal>> GetExchangeWithdrawalsHistoryAsync(
+            DateTime from, DateTime to, int page, int pageSize, 
+            List<ExchangeType> requestTypeFilter = null)
+        {
+            var query = ExchangeWithdrawals.AsNoTracking();
+            if (requestTypeFilter !=null)
+            {
+                query = query.Where(item => requestTypeFilter.Contains(item.Exchange));
+            }
+            if (page > 0)
+            {
+                query = query.Where(item => item.Id < page);
+            }
+
+            var result = await query
+                .Where(w => w.Date >= from && w.Date < to)
+                .OrderByDescending(item => item.Id)
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            
+            return result;
+        }
+        
+        public async Task SaveExchangeWithdrawalsHistoryAsync(IEnumerable<Withdrawal> withdrawals)
+        {
+            await ExchangeWithdrawals.AddRangeAsync(withdrawals);
+            await SaveChangesAsync();
         }
     }
 }

@@ -10,9 +10,12 @@ namespace Service.Liquidity.Reports.Client
         {
             var factory = new LiquidityReportsClientFactory(liquidityReportGrpcServiceUrl);
 
-            builder.RegisterInstance(factory.GetLiquidityReportService()).As<ILiquidityReportService>()
-                .SingleInstance();
-            builder.RegisterInstance(factory.GetHedgeReportService()).As<IHedgeReportService>().SingleInstance();
+            builder.RegisterInstance(factory.GetLiquidityReportService())
+                .As<ILiquidityReportService>().SingleInstance();
+            builder.RegisterInstance(factory.GetHedgeReportService())
+                .As<IHedgeReportService>().SingleInstance();
+            builder.RegisterInstance(factory.GetExchangeReportService())
+                .As<IExchangeReportService>().SingleInstance();
         }
     }
 }

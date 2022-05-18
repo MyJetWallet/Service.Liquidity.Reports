@@ -24,10 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Entities" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="Migrations\20220317120614_add_hedger_history.cs" />
     <Compile Remove="Migrations\20220317120614_add_hedger_history.Designer.cs" />
   </ItemGroup>

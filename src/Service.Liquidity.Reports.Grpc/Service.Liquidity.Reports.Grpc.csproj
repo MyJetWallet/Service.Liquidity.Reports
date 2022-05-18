@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Service.Liquidity.Reports.Database\Service.Liquidity.Reports.Database.csproj" />
     <ProjectReference Include="..\Service.Liquidity.Reports.Domain.Models\Service.Liquidity.Reports.Domain.Models.csproj" />
   </ItemGroup>
 

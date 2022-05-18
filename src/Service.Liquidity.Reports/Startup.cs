@@ -12,6 +12,7 @@ using MyJetWallet.Sdk.Service;
 using Prometheus;
 using ProtoBuf.Grpc.Server;
 using Service.Liquidity.Reports.Database;
+using Service.Liquidity.Reports.Database.Entities;
 using Service.Liquidity.Reports.Grpc;
 using Service.Liquidity.Reports.Modules;
 using Service.Liquidity.Reports.Services;
@@ -54,7 +55,7 @@ namespace Service.Liquidity.Reports
             {
                 endpoints.MapGrpcSchema<LiquidityReportService, ILiquidityReportService>();
                 endpoints.MapGrpcSchema<HedgeReportService, IHedgeReportService>();
-
+                endpoints.MapGrpcSchema<ExchangeReportService, IExchangeReportService>();
                 endpoints.MapGrpcSchemaRegistry();
 
                 endpoints.MapGet("/", async context =>

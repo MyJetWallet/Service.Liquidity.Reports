@@ -21,8 +21,11 @@ namespace Service.Liquidity.Reports.Client
             _channel = channel.Intercept(new PrometheusMetricsInterceptor());
         }
 
-        public ILiquidityReportService GetLiquidityReportService() => _channel.CreateGrpcService<ILiquidityReportService>();
-        public IHedgeReportService GetHedgeReportService() => _channel.CreateGrpcService<IHedgeReportService>();
-
+        public ILiquidityReportService GetLiquidityReportService() => 
+            _channel.CreateGrpcService<ILiquidityReportService>();
+        public IHedgeReportService GetHedgeReportService() => 
+            _channel.CreateGrpcService<IHedgeReportService>();
+        public IExchangeReportService GetExchangeReportService() =>
+            _channel.CreateGrpcService<IExchangeReportService>();
     }
 }
