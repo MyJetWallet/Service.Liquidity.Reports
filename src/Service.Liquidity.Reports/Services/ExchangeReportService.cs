@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MyJetWallet.Sdk.ServiceBus;
 using Service.Liquidity.Reports.Database;
 using Service.Liquidity.Reports.Domain.Models.Models;
 using Service.Liquidity.Reports.Grpc;
@@ -18,10 +19,10 @@ namespace Service.Liquidity.Reports.Services
         private readonly ILogger<ExchangeReportService> _logger;
         private readonly DatabaseContextFactory _contextFactory;
 
+
         public ExchangeReportService(
             ILogger<ExchangeReportService> logger,
-            DatabaseContextFactory contextFactory
-        )
+            DatabaseContextFactory contextFactory)
         {
             _logger = logger;
             _contextFactory = contextFactory;

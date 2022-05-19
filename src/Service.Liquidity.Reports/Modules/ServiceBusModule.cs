@@ -2,6 +2,7 @@
 using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.Abstractions;
 using Service.Liquidity.Hedger.Domain.Models;
+using Service.Liquidity.Reports.Domain.Models.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Modules
@@ -31,6 +32,9 @@ namespace Service.Liquidity.Reports.Modules
             builder.RegisterMyServiceBusSubscriberSingle<HedgeOperation>(serviceBusClient, HedgeOperation.TopicName, 
                 $"LiquidityReports",
                 TopicQueueType.PermanentWithSingleConnection);
+            
+            builder.RegisterMyServiceBusPublisher<Withdrawal>(serviceBusClient, Withdrawal.TopicName, true);
+
         }
     }
 }

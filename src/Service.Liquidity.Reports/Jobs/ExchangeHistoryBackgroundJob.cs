@@ -10,11 +10,14 @@ using Microsoft.Extensions.Logging;
 using MyJetWallet.Domain.ExternalMarketApi;
 using MyJetWallet.Sdk.Service;
 using MyJetWallet.Sdk.Service.Tools;
+using MyJetWallet.Sdk.ServiceBus;
 using Service.Liquidity.Reports.Database;
 using Service.Liquidity.Reports.Domain.Models.Models;
 using Service.Liquidity.Reports.Grpc.Models.Exchange;
 using GetWithdrawalsHistoryRequest = MyJetWallet.Domain.ExternalMarketApi.Dto.GetWithdrawalsHistoryRequest;
-using Withdrawal = MyJetWallet.Domain.ExternalMarketApi.Models.Withdrawal;
+using WithdrawalApi = MyJetWallet.Domain.ExternalMarketApi.Models.Withdrawal;
+using WithdrawalDb = Service.Liquidity.Reports.Domain.Models.Models.Withdrawal;
+
 
 namespace Service.Liquidity.Reports.Jobs
 {
@@ -29,18 +32,22 @@ namespace Service.Liquidity.Reports.Jobs
         private readonly DatabaseContextFactory _contextFactory;
         private readonly IExternalExchangeManager _exchangeManager;
         private readonly IExternalMarket _externalMarket;
+        private readonly IServiceBusPublisher<WithdrawalDb> _withdrawalHistoryPublisher;
+
 
 
         public ExchangeHistoryBackgroundJob(
             ILogger<ExchangeHistoryBackgroundJob> logger,
             DatabaseContextFactory contextFactory,
             IExternalExchangeManager exchangeManager,
-            IExternalMarket externalMarket)
+            IExternalMarket externalMarket, 
+            IServiceBusPublisher<WithdrawalDb> withdrawalHistoryPublisher)
         {
             _logger = logger;
             _contextFactory = contextFactory;
             _exchangeManager = exchangeManager;
             _externalMarket = externalMarket;
+            _withdrawalHistoryPublisher = withdrawalHistoryPublisher;
             _operationsTimer = new MyTaskTimer(nameof(ExchangeHistoryBackgroundJob),
                 TimeSpan.FromSeconds(TimerSpan60Sec), logger, Process);
         }
@@ -98,15 +105,15 @@ namespace Service.Liquidity.Reports.Jobs
                             continue;
                         }
 
-                        var withdrawals = responseWithdrawalsHistory.Result?.Withdrawals ?? new List<Withdrawal>();
-                        var withdrawalsDb = new List<Service.Liquidity.Reports.Domain.Models.Models.Withdrawal>();
+                        var withdrawals = responseWithdrawalsHistory.Result?.Withdrawals ?? new List<WithdrawalApi>();
+                        var withdrawalsDb = new List<WithdrawalDb>();
 
 
                         foreach (var withdrawal in withdrawals)
                         {
                             try
                             {
-                                var item = new Service.Liquidity.Reports.Domain.Models.Models.Withdrawal()
+                                var item = new WithdrawalDb()
                                 {
                                     Exchange = exchangeType,
                                     TxId = withdrawal.TxId,
@@ -119,6 +126,7 @@ namespace Service.Liquidity.Reports.Jobs
                                     FeeInUsd = 0, //TODO: ConvertToUsd
                                     Volume = withdrawal.Amount
                                 };
+                                withdrawalsDb.Add(item);
 
                                 if (item.Date > dateTo)
                                     dateTo = item.Date;
@@ -130,9 +138,8 @@ namespace Service.Liquidity.Reports.Jobs
                                     withdrawal.ToJson(), ex.Message, ex);
                             }
                         }
-
-                        await using var ctx = _contextFactory.Create();
-                        await ctx.SaveExchangeWithdrawalsHistoryAsync(withdrawalsDb);
+                        await SaveToDbWithdrawals(withdrawalsDb);
+                        await PublishWithdrawals(withdrawalsDb);
                     } while (dateTo <= current);
                 }
             }
@@ -176,6 +183,20 @@ namespace Service.Liquidity.Reports.Jobs
             }
 
             return ExchangeType.None;
+        }
+
+        private async Task PublishWithdrawals(List<WithdrawalDb> withdrawals)
+        {
+            foreach (var withdrawal in withdrawals)
+            {
+                await _withdrawalHistoryPublisher. PublishAsync(withdrawal); 
+            }
+        }
+ 
+        private async Task SaveToDbWithdrawals(List<WithdrawalDb> withdrawals)
+        {
+            await using var ctx = _contextFactory.Create();
+            await ctx.SaveExchangeWithdrawalsHistoryAsync(withdrawals);
         }
     }
 }

@@ -148,6 +148,8 @@ namespace Service.Liquidity.Reports.Database
             modelBuilder.Entity<Withdrawal>().Property(e => e.FeeInUsd);
             modelBuilder.Entity<Withdrawal>().Property(e => e.Volume);
             modelBuilder.Entity<Withdrawal>().Property(e => e.Exchange).HasMaxLength(64);
+            modelBuilder.Entity<Withdrawal>().Property(e => e.VolumeInUsd);
+
         }
 
         public async Task SaveManualSettlementHistoryAsync(IEnumerable<PortfolioSettlement> settlements)

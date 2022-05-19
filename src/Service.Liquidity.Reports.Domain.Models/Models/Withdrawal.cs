@@ -6,6 +6,8 @@ namespace Service.Liquidity.Reports.Domain.Models.Models;
 [DataContract]
 public class Withdrawal
 {
+    public const string TopicName = "jetwallet-exchange-withdrawals-history";
+
     [DataMember(Order = 1)] public long Id { get; set; }
     [DataMember(Order = 2)] public ExchangeType Exchange { get; set; }
     [DataMember(Order = 3)] public string TxId  { get; set; }
@@ -17,4 +19,5 @@ public class Withdrawal
     [DataMember(Order = 9)] public decimal Fee { get; set; }
     [DataMember(Order = 10)] public decimal FeeInUsd { get; set; }
     [DataMember(Order = 11)] public decimal Volume { get; set; }
+    [DataMember(Order = 12)] public decimal VolumeInUsd { get; set; }
 }
