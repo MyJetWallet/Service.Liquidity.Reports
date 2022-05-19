@@ -41,7 +41,15 @@ namespace Service.Liquidity.Reports.Modules
                 .AutoActivate()
                 .SingleInstance();
 
-            builder.RegisterType<DatabaseContextFactory>().AsSelf().SingleInstance();
+            builder.RegisterType<DatabaseContextFactory>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder
+                .RegisterType<ExchangeHistoryBackgroundJob>()
+                .As<IStartable>()
+                .AutoActivate()
+                .SingleInstance();
         }
     }
 }

@@ -19,5 +19,11 @@ namespace Service.Liquidity.Reports.Settings
 
         [YamlProperty("LiquidityReports.ElkLogs")]
         public LogElkSettings ElkLogs { get; set; }
+        
+        [YamlProperty("LiquidityReports.ExternalApiGrpcUrl")]
+        public string ExternalApiGrpcUrl { get; set; }
+        
+        [YamlProperty("LiquidityReports.MyNoSqlReaderHostPort")]
+        public string MyNoSqlReaderHostPort { get; set; }
     }
 }

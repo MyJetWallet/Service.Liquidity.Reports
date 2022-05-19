@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Service.Liquidity.Reports.Domain.Models.Models;
 
 namespace Service.Liquidity.Reports.Grpc.Models.Exchange;
 

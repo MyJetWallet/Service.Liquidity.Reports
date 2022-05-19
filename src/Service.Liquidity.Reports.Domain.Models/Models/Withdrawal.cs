@@ -1,8 +1,7 @@
 using System;
 using System.Runtime.Serialization;
-using Service.Liquidity.Reports.Grpc.Models.Exchange;
 
-namespace Service.Liquidity.Reports.Database.Entities;
+namespace Service.Liquidity.Reports.Domain.Models.Models;
 
 [DataContract]
 public class Withdrawal

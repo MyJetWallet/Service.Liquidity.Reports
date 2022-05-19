@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MyJetWallet.Sdk.Postgres;
 using Service.Liquidity.Hedger.Domain.Models;
-using Service.Liquidity.Reports.Database.Entities;
-using Service.Liquidity.Reports.Grpc.Models.Exchange;
+using Service.Liquidity.Reports.Domain.Models.Models;
 using Service.Liquidity.TradingPortfolio.Domain.Models;
 
 namespace Service.Liquidity.Reports.Database
@@ -247,6 +246,12 @@ namespace Service.Liquidity.Reports.Database
         }
         
         public async Task SaveExchangeWithdrawalsHistoryAsync(IEnumerable<Withdrawal> withdrawals)
+        {
+            await ExchangeWithdrawals.AddRangeAsync(withdrawals);
+            await SaveChangesAsync();
+        }
+        
+        public async Task GetExchangeWithdrawalsHistoryNextAsync(IEnumerable<Withdrawal> withdrawals)
         {
             await ExchangeWithdrawals.AddRangeAsync(withdrawals);
             await SaveChangesAsync();

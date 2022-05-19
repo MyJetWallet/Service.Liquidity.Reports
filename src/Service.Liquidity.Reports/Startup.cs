@@ -12,7 +12,6 @@ using MyJetWallet.Sdk.Service;
 using Prometheus;
 using ProtoBuf.Grpc.Server;
 using Service.Liquidity.Reports.Database;
-using Service.Liquidity.Reports.Database.Entities;
 using Service.Liquidity.Reports.Grpc;
 using Service.Liquidity.Reports.Modules;
 using Service.Liquidity.Reports.Services;
@@ -70,7 +69,7 @@ namespace Service.Liquidity.Reports
             builder.RegisterModule<SettingsModule>();
             builder.RegisterModule<ServiceModule>();
             builder.RegisterModule<ServiceBusModule>();
-            
+            builder.RegisterModule<ClientModule>();
         }
     }
 }

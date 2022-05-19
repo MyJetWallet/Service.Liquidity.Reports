@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Service.Liquidity.Reports.Database;
-using Service.Liquidity.Reports.Database.Entities;
+using Service.Liquidity.Reports.Domain.Models.Models;
 using Service.Liquidity.Reports.Grpc;
 using Service.Liquidity.Reports.Grpc.Models.Exchange;
 using Service.Liquidity.Reports.Grpc.Models.Hedger;
