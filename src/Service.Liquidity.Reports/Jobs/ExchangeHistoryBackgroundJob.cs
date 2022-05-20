@@ -11,6 +11,7 @@ using MyJetWallet.Domain.ExternalMarketApi;
 using MyJetWallet.Sdk.Service;
 using MyJetWallet.Sdk.Service.Tools;
 using MyJetWallet.Sdk.ServiceBus;
+using Service.IndexPrices.Client;
 using Service.Liquidity.Reports.Database;
 using Service.Liquidity.Reports.Domain.Models.Models;
 using Service.Liquidity.Reports.Grpc.Models.Exchange;
@@ -33,7 +34,7 @@ namespace Service.Liquidity.Reports.Jobs
         private readonly IExternalExchangeManager _exchangeManager;
         private readonly IExternalMarket _externalMarket;
         private readonly IServiceBusPublisher<WithdrawalDb> _withdrawalHistoryPublisher;
-
+        private readonly IIndexPricesClient _indexPricesClient;
 
 
         public ExchangeHistoryBackgroundJob(
@@ -41,13 +42,15 @@ namespace Service.Liquidity.Reports.Jobs
             DatabaseContextFactory contextFactory,
             IExternalExchangeManager exchangeManager,
             IExternalMarket externalMarket, 
-            IServiceBusPublisher<WithdrawalDb> withdrawalHistoryPublisher)
+            IServiceBusPublisher<WithdrawalDb> withdrawalHistoryPublisher, 
+            IIndexPricesClient indexPricesClient)
         {
             _logger = logger;
             _contextFactory = contextFactory;
             _exchangeManager = exchangeManager;
             _externalMarket = externalMarket;
             _withdrawalHistoryPublisher = withdrawalHistoryPublisher;
+            _indexPricesClient = indexPricesClient;
             _operationsTimer = new MyTaskTimer(nameof(ExchangeHistoryBackgroundJob),
                 TimeSpan.FromSeconds(TimerSpan60Sec), logger, Process);
         }
@@ -113,18 +116,28 @@ namespace Service.Liquidity.Reports.Jobs
                         {
                             try
                             {
-                                var item = new WithdrawalDb()
+                                var (assetIndexPrice, assetVolumeInUsd) =
+                                    _indexPricesClient.GetIndexPriceByAssetVolumeAsync(withdrawal.Symbol,
+                                        Convert.ToDecimal(withdrawal.Amount));
+
+                                var (feeIndexPrice, feeVolumeInUsd) =
+                                    _indexPricesClient.GetIndexPriceByAssetVolumeAsync(withdrawal.Symbol,
+                                        Convert.ToDecimal(withdrawal.Fee));
+
+                                
+                                var item = new WithdrawalDb
                                 {
                                     Exchange = exchangeType,
                                     TxId = withdrawal.TxId,
                                     InternalId = withdrawal.Id,
-                                    ExchangeAsset = withdrawal.Symbol, //TODO: ConvertToOurSymbol
-                                    Asset = withdrawal.Symbol,
+                                    ExchangeAsset = withdrawal.Symbol, 
+                                    Asset = withdrawal.Symbol, //TODO: ConvertToOurSymbol
                                     Date = withdrawal.Date,
                                     Notes = withdrawal.Note,
                                     Fee = withdrawal.Fee,
-                                    FeeInUsd = 0, //TODO: ConvertToUsd
-                                    Volume = withdrawal.Amount
+                                    FeeInUsd = feeVolumeInUsd,
+                                    Volume = withdrawal.Amount,
+                                    VolumeInUsd = assetVolumeInUsd,
                                 };
                                 withdrawalsDb.Add(item);
 
