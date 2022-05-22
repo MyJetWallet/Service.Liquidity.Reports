@@ -11,4 +11,5 @@ public class GetWithdrawalsHistoryResponse
     [DataMember(Order = 1)] public bool IsError { get; set; }
     [DataMember(Order = 2)] public string ErrorMessage { get; set; }
     [DataMember(Order = 3)] public IEnumerable<Withdrawal> Items { get; set; }
+    [DataMember(Order = 4)] public int TotalItems { get; set; }
 }

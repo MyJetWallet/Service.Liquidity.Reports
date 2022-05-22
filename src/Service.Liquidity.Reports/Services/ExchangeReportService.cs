@@ -42,11 +42,13 @@ namespace Service.Liquidity.Reports.Services
                 var response = await ctx.GetExchangeWithdrawalsHistoryAsync(
                     fromDate, toDate, page, pageSize,  request.ExchangeFilter);
                 
-                response = response ?? new List<Withdrawal>();
+                var withdrawals = response.Item1 ??  new List<Withdrawal>();
+                var totalWithdrawals = response.Item2;
                 
                 return new GetWithdrawalsHistoryResponse
                 {
-                    Items = response
+                    Items = withdrawals,
+                    TotalItems = totalWithdrawals
                 };
             }
             catch (Exception ex)

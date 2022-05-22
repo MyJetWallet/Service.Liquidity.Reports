@@ -223,7 +223,7 @@ namespace Service.Liquidity.Reports.Database
             return result;
         }
         
-        public async Task<IEnumerable<Withdrawal>> GetExchangeWithdrawalsHistoryAsync(
+        public async Task<(IEnumerable<Withdrawal>, int)> GetExchangeWithdrawalsHistoryAsync(
             DateTime from, DateTime to, int page, int pageSize, 
             List<ExchangeType> requestTypeFilter = null)
         {
@@ -232,11 +232,11 @@ namespace Service.Liquidity.Reports.Database
             {
                 query = query.Where(item => requestTypeFilter.Contains(item.Exchange));
             }
-            if (page > 0)
-            {
-                query = query.Where(item => item.Id < page);
-            }
 
+            var resultTotalCount = await query
+                .Where(w => w.Date >= from && w.Date < to)
+                .CountAsync();
+            
             var result = await query
                 .Where(w => w.Date >= from && w.Date < to)
                 .OrderByDescending(item => item.Id)
@@ -244,7 +244,7 @@ namespace Service.Liquidity.Reports.Database
                 .Take(pageSize)
                 .ToListAsync();
             
-            return result;
+            return (result, resultTotalCount);
         }
         
         public async Task SaveExchangeWithdrawalsHistoryAsync(IEnumerable<Withdrawal> withdrawals)
