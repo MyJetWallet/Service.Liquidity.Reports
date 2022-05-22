@@ -239,7 +239,7 @@ namespace Service.Liquidity.Reports.Database
             
             var result = await query
                 .Where(w => w.Date >= from && w.Date < to)
-                .OrderByDescending(item => item.Id)
+                .OrderBy(w => w.Date)
                 .Skip(page * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
