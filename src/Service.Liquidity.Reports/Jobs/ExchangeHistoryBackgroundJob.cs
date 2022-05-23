@@ -76,12 +76,6 @@ namespace Service.Liquidity.Reports.Jobs
                 foreach (var exchangeName in exchangeNames)
                 {
                     var exchangeType = ToExchangeType(exchangeName);
-                    if (exchangeType == ExchangeType.None)
-                    {
-                        _logger.LogWarning("Get unknown exchange {@name}", exchangeName);
-                        continue;
-                    }
-
                     var dateFrom = await GetLatestWithdrawal(exchangeType);
                     var dateTo = NextDay(dateFrom);
                     var current = DateTime.UtcNow;
@@ -130,8 +124,8 @@ namespace Service.Liquidity.Reports.Jobs
                                     Exchange = exchangeType,
                                     TxId = withdrawal.TxId,
                                     InternalId = withdrawal.Id,
-                                    ExchangeAsset = withdrawal.Symbol, 
-                                    Asset = withdrawal.Symbol, //TODO: ConvertToOurSymbol
+                                    ExchangeAsset = withdrawal.Symbol,
+                                    Asset = withdrawal.Symbol, //TODO: ConvertToOurSymbol if needed
                                     Date = withdrawal.Date,
                                     Notes = withdrawal.Note,
                                     Fee = withdrawal.Fee,
@@ -195,7 +189,8 @@ namespace Service.Liquidity.Reports.Jobs
                 return ExchangeType.Binance;
             }
 
-            return ExchangeType.None;
+            throw new ArgumentException("ExchangeType cannot be ", name);
+
         }
 
         private async Task PublishWithdrawals(List<WithdrawalDb> withdrawals)
