@@ -223,16 +223,21 @@ namespace Service.Liquidity.Reports.Database
             return result;
         }
         
-        public async Task<(IEnumerable<Withdrawal>, int)> GetExchangeWithdrawalsHistoryAsync(
-            DateTime from, DateTime to, int page, int pageSize, 
-            List<ExchangeType> requestTypeFilter = null)
+        public async Task<(IEnumerable<Withdrawal>, int)> GetExchangeWithdrawalsHistoryAsync(DateTime from, DateTime to,
+            int page, int pageSize,
+            List<ExchangeType> requestTypeFilter = null, List<string> requestAssetFilter = null)
         {
             var query = ExchangeWithdrawals.AsNoTracking();
             if (requestTypeFilter !=null)
             {
                 query = query.Where(item => requestTypeFilter.Contains(item.Exchange));
             }
-
+            
+            if (requestAssetFilter !=null)
+            {
+                query = query.Where(item => requestAssetFilter.Contains(item.Asset));
+            }
+            
             var resultTotalCount = await query
                 .Where(w => w.Date >= from && w.Date < to)
                 .CountAsync();

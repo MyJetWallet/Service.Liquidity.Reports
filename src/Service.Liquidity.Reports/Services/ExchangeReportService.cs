@@ -40,7 +40,7 @@ namespace Service.Liquidity.Reports.Services
 
                 await using var ctx = _contextFactory.Create();
                 var response = await ctx.GetExchangeWithdrawalsHistoryAsync(
-                    fromDate, toDate, page, pageSize,  request.ExchangeFilter);
+                    fromDate, toDate, page, pageSize, request.ExchangeFilter, request.AssetFilter);
                 
                 var withdrawals = response.Item1 ??  new List<Withdrawal>();
                 var totalWithdrawals = response.Item2;

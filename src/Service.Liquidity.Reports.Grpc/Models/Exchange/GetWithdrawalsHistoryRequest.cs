@@ -13,4 +13,5 @@ public class GetWithdrawalsHistoryRequest
     [DataMember(Order = 3)] public int Page { get; set; }
     [DataMember(Order = 4)] public int PageSize { get; set; }
     [DataMember(Order = 5)] public List<ExchangeType> ExchangeFilter { get; set; }
+    [DataMember(Order = 6)] public List<string> AssetFilter { get; set; }
 }
