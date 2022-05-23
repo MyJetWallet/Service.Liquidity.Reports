@@ -241,12 +241,16 @@ namespace Service.Liquidity.Reports.Database
             var resultTotalCount = await query
                 .Where(w => w.Date >= from && w.Date < to)
                 .CountAsync();
+       
+            if (page != 0 || pageSize != 0)
+            {
+                query = query.Skip(page * pageSize)
+                    .Take(pageSize);
+            }
             
             var result = await query
                 .Where(w => w.Date >= from && w.Date < to)
                 .OrderBy(w => w.Date)
-                .Skip(page * pageSize)
-                .Take(pageSize)
                 .ToListAsync();
             
             return (result, resultTotalCount);
