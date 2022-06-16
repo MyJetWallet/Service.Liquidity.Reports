@@ -35,6 +35,8 @@ namespace Service.Liquidity.Reports.Jobs
         private readonly IExternalMarket _externalMarket;
         private readonly IServiceBusPublisher<WithdrawalDb> _withdrawalHistoryPublisher;
         private readonly IIndexPricesClient _indexPricesClient;
+        private readonly DateTime _minStartFrom;
+
 
 
         public ExchangeHistoryBackgroundJob(
@@ -53,6 +55,7 @@ namespace Service.Liquidity.Reports.Jobs
             _indexPricesClient = indexPricesClient;
             _operationsTimer = new MyTaskTimer(nameof(ExchangeHistoryBackgroundJob),
                 TimeSpan.FromSeconds(TimerSpan60Sec), logger, Process);
+            _minStartFrom = DateTime.ParseExact("2022-05-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
         }
 
         public void Start()
@@ -76,14 +79,13 @@ namespace Service.Liquidity.Reports.Jobs
                 foreach (var exchangeName in exchangeNames)
                 {
                     var exchangeType = ToExchangeType(exchangeName);
-                    var latestWithdrawalDate = await GetLatestWithdrawal(exchangeType);
-                    var dateFrom = latestWithdrawalDate;
-                    var dateTo = latestWithdrawalDate;
+                    var latestWithdrawalOperation = await GetLatestWithdrawalDate(exchangeType);
+                    var dateTo = latestWithdrawalOperation?.Date ?? _minStartFrom;
                     var current = DateTime.UtcNow;
 
                     do
                     { 
-                        dateFrom = dateTo;
+                        var dateFrom = dateTo;
                         dateTo = NextDay(dateFrom);
 
                         var responseWithdrawalsHistory = _externalMarket.GetWithdrawalsHistoryAsync(
@@ -100,7 +102,6 @@ namespace Service.Liquidity.Reports.Jobs
                                 "Cannot get withdrawals {@name} date from {@dateFrom} to {@dateTo}. Message: {@message}",
                                 exchangeName, dateFrom, dateTo, responseWithdrawalsHistory.Result.ErrorMessage);
                             
-                            latestWithdrawalDate = dateTo;
                             continue;
                         }
 
@@ -135,11 +136,6 @@ namespace Service.Liquidity.Reports.Jobs
                                     VolumeInUsd = assetVolumeInUsd,
                                 };
                                 withdrawalsDb.Add(item);
-
-                                if (item.Date > latestWithdrawalDate)
-                                {
-                                    latestWithdrawalDate = item.Date;
-                                }
                             }
                             catch (Exception ex)
                             {
@@ -148,8 +144,11 @@ namespace Service.Liquidity.Reports.Jobs
                                     withdrawal.ToJson(), ex.Message, ex);
                             }
                         }
-                        await SaveToDbWithdrawals(withdrawalsDb);
-                        await PublishWithdrawals(withdrawalsDb);
+                        if (withdrawalsDb.Count > 0)
+                        {
+                            await SaveToDbWithdrawals(withdrawalsDb);
+                            await PublishWithdrawals(withdrawalsDb);
+                        }
                     } while (dateTo <= current);
                 }
             }
@@ -160,18 +159,24 @@ namespace Service.Liquidity.Reports.Jobs
             }
         }
 
-        private async Task<DateTime> GetLatestWithdrawal(ExchangeType exchangeType)
+        private async Task<Withdrawal> GetLatestWithdrawalDate(ExchangeType exchangeType)
         {
-            var dateFrom = DateTime.ParseExact(StartFrom2022, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-            await using var ctx = _contextFactory.Create();
-            var withdrawal = ctx.ExchangeWithdrawals
-                .Where(e => e.Exchange == exchangeType)
-                .OrderBy(e => e.Id)
-                .LastOrDefaultAsync();
-
-            dateFrom = withdrawal?.Result?.Date ?? dateFrom;
-
-            return dateFrom;
+            try
+            {
+                await using var ctx = _contextFactory.Create();
+                var withdrawal = await ctx.ExchangeWithdrawals
+                    .Where(e => e.Exchange == exchangeType)
+                    .OrderBy(e => e.Id)
+                    .LastOrDefaultAsync();
+                
+                return withdrawal;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to GetLatestWithdrawalDate {@message} {@ex}",
+                    ex.Message, ex);
+            }
+            return null;
         }
 
         private static DateTime NextDay(DateTime current)
