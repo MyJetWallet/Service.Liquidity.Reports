@@ -26,8 +26,6 @@ namespace Service.Liquidity.Reports.Jobs
     {
         private const int TimerSpan60Sec = 60;
         private const int PageSize100 = 100;
-        private const string StartFrom2022 = "2022-05-01";
-
         private readonly ILogger<ExchangeHistoryBackgroundJob> _logger;
         private readonly MyTaskTimer _operationsTimer;
         private readonly DatabaseContextFactory _contextFactory;
@@ -35,9 +33,7 @@ namespace Service.Liquidity.Reports.Jobs
         private readonly IExternalMarket _externalMarket;
         private readonly IServiceBusPublisher<WithdrawalDb> _withdrawalHistoryPublisher;
         private readonly IIndexPricesClient _indexPricesClient;
-        private readonly DateTime _minStartFrom;
-
-
+        private readonly DateTime _minStartFrom = new DateTime(2022, 05, 01);
 
         public ExchangeHistoryBackgroundJob(
             ILogger<ExchangeHistoryBackgroundJob> logger,
@@ -55,7 +51,6 @@ namespace Service.Liquidity.Reports.Jobs
             _indexPricesClient = indexPricesClient;
             _operationsTimer = new MyTaskTimer(nameof(ExchangeHistoryBackgroundJob),
                 TimeSpan.FromSeconds(TimerSpan60Sec), logger, Process);
-            _minStartFrom = DateTime.ParseExact("2022-05-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
         }
 
         public void Start()
@@ -80,31 +75,32 @@ namespace Service.Liquidity.Reports.Jobs
                 {
                     var exchangeType = ToExchangeType(exchangeName);
                     var latestWithdrawalOperation = await GetLatestWithdrawalDate(exchangeType);
-                    var dateTo = latestWithdrawalOperation?.Date ?? _minStartFrom;
+                    var dateStart = latestWithdrawalOperation?.Date > _minStartFrom ? latestWithdrawalOperation.Date : _minStartFrom;
                     var current = DateTime.UtcNow;
 
-                    do
-                    { 
-                        var dateFrom = dateTo;
-                        dateTo = NextDay(dateFrom);
-
+                    while (dateStart >= _minStartFrom && dateStart <= current )
+                    {
+                        var dateLast = NextDay(dateStart);
                         var responseWithdrawalsHistory = _externalMarket.GetWithdrawalsHistoryAsync(
                             new GetWithdrawalsHistoryRequest
                             {
                                 ExchangeName = exchangeName,
-                                From = dateFrom,
-                                To = dateTo
+                                From = dateStart,
+                                To = dateLast
                             });
 
                         if (responseWithdrawalsHistory.Result.IsError)
                         {
                             _logger.LogWarning(
                                 "Cannot get withdrawals {@name} date from {@dateFrom} to {@dateTo}. Message: {@message}",
-                                exchangeName, dateFrom, dateTo, responseWithdrawalsHistory.Result.ErrorMessage);
+                                exchangeName, dateStart, dateLast, responseWithdrawalsHistory.Result.ErrorMessage);
                             
+                            dateStart = dateLast;
                             continue;
                         }
-
+                        
+                        dateStart = dateLast;
+                        
                         var withdrawals = responseWithdrawalsHistory.Result?.Withdrawals ?? new List<WithdrawalApi>();
                         var withdrawalsDb = new List<WithdrawalDb>();
 
@@ -149,7 +145,7 @@ namespace Service.Liquidity.Reports.Jobs
                             await SaveToDbWithdrawals(withdrawalsDb);
                             await PublishWithdrawals(withdrawalsDb);
                         }
-                    } while (dateTo <= current);
+                    }
                 }
             }
             catch (Exception ex)
