@@ -69,11 +69,18 @@ namespace Service.Liquidity.Reports.Jobs
             {
                 var responseExchange = _exchangeManager
                     .GetExternalExchangeCollectionAsync();
-
                 var exchangeNames = responseExchange.Result.ExchangeNames ?? new List<string>();
+                var exchangesForImport = new [] {ExchangeType.Ftx};
+                
                 foreach (var exchangeName in exchangeNames)
                 {
                     var exchangeType = ToExchangeType(exchangeName);
+
+                    if (!exchangesForImport.Contains(exchangeType))
+                    {
+                        continue;
+                    }
+                    
                     var latestWithdrawalOperation = await GetLatestWithdrawalDate(exchangeType);
                     var dateStart = latestWithdrawalOperation?.Date > _minStartFrom ? latestWithdrawalOperation.Date : _minStartFrom;
                     var current = DateTime.UtcNow;
@@ -191,6 +198,11 @@ namespace Service.Liquidity.Reports.Jobs
             if (string.Compare(name, "Binance", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return ExchangeType.Binance;
+            }
+            
+            if (string.Compare(name, "OKX", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return ExchangeType.Okx;
             }
 
             throw new ArgumentException("ExchangeType cannot be ", name);
