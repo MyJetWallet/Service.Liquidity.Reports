@@ -55,12 +55,12 @@ namespace Service.Liquidity.Reports.Jobs
 
         public void Start()
         {
-            _operationsTimer.Start();
+            //_operationsTimer.Start();
         }
 
         public void Stop()
         {
-            _operationsTimer.Stop();
+            //_operationsTimer.Stop();
         }
 
         private async Task Process()
